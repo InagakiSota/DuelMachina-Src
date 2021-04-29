@@ -10,7 +10,6 @@
 #include "../../HitEffectManager.h"
 
 
-
 class Character3AttackMiddleNeutral : public CharacterAttackBase
 {
 public:
@@ -46,14 +45,13 @@ private:
 	//ジオメトリプリミティブのサイズ
 	static const float GP_SIZE;
 	//弾道の数
-	static const int BALLISTIC_NUM = 5;
+	static const int BALLISTIC_NUM = 10;
 	//当たり判定のサイズ
 	static const DirectX::SimpleMath::Vector3 COLL_SIZE;
 	//弾道のジオメトリプリミティブ
 	std::unique_ptr<DirectX::GeometricPrimitive> m_pBallisticGPArray[BALLISTIC_NUM];
 	//弾道の座標
 	DirectX::SimpleMath::Vector3 m_ballisticPos[BALLISTIC_NUM];
-
-	//弾道の添字
-	int m_ballisticIndex;
+	//弾道のワールド行列
+	DirectX::SimpleMath::Matrix m_ballisticWorld[BALLISTIC_NUM];
 };

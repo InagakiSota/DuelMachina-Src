@@ -36,4 +36,13 @@ private:
 	static const float VANISH_TIME;
 	//ジオメトリプリミティブのサイズ
 	static const float GP_SIZE;
+	//弾道の数
+	static const int BALLISTIC_NUM = 10;
+	//弾道のジオメトリプリミティブ
+	std::unique_ptr<DirectX::GeometricPrimitive> m_pBallisticGPArray[BALLISTIC_NUM];
+	//弾道の座標
+	DirectX::SimpleMath::Vector3 m_ballisticPos[BALLISTIC_NUM];
+	//弾道のワールド行列
+	DirectX::SimpleMath::Matrix m_ballisticWorld[BALLISTIC_NUM];
+
 };

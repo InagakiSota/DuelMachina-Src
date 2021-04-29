@@ -31,7 +31,6 @@ public:
 	//移動制限
 	static const float MOVE_LIMIT_X;
 
-
 	//デストラクタ
 	virtual ~CharacterBase();
 
@@ -222,7 +221,6 @@ protected:
 	FbxModel* m_pShieldModel;
 	//シールドのモデルのワールド行列
 	DirectX::SimpleMath::Matrix m_shieldWorld;
-
 
 
 	//着地フラグ

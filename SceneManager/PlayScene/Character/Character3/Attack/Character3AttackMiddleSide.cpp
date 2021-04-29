@@ -81,7 +81,7 @@ void Character3AttackMiddleSide::Update()
 			m_pCharacter->GetPos().y - 0.2f,
 			m_pCharacter->GetPos().z);
 		//当たり判定のサイズを設定
-		m_pAttack->attackColl.size_h = DirectX::SimpleMath::Vector3(0.15f, 0.15f, 0.15f);
+		m_pAttack->attackColl.size_h = DirectX::SimpleMath::Vector3(Character3AttackMiddleSide::COLL_SIZE);
 		//プレイヤーのIDを設定(使用者のプレイヤーIDと同期)
 		m_pAttack->playerID = m_pCharacter->GetPlayerID();
 		//移動量を設定
@@ -93,6 +93,19 @@ void Character3AttackMiddleSide::Update()
 		//弾のジオメトリプリミティブ生成
 		m_pBulletGP = DirectX::GeometricPrimitive::CreateSphere(m_pDeviceResources->GetD3DDeviceContext(), m_pAttack->attackColl.size_h.x * Character3AttackMiddleSide::GP_SIZE);
 
+		//弾道のジオメトリプリミティブの読み込み
+		for (int i = 0; i < BALLISTIC_NUM; i++)
+		{
+			//後のほうになるにつれサイズを小さくする
+			m_pBallisticGPArray[i] =
+				DirectX::GeometricPrimitive::CreateSphere(
+					m_pDeviceResources->GetD3DDeviceContext(),
+					m_pAttack->attackColl.size_h.x * Character3AttackMiddleSide::GP_SIZE * (1 - i * 0.1f));;
+
+			//弾道の座標の初期値を代入する
+			m_ballisticPos[i] = m_pAttack->pos;
+		}
+
 		//攻撃使用中のフラグの設定
 		m_pCharacter->SetIsAttackUse(static_cast<int>(eATTACK_TYPE::MIDDLE_SIDE), true);
 		//攻撃入力のフラグの設定
@@ -101,8 +114,10 @@ void Character3AttackMiddleSide::Update()
 		m_pCharacter->SetIsAttacking(true);
 	}
 
+	//攻撃のポインタが空ではないかつ、攻撃の使用フラグが立っていたら処理を更新処理を行う
 	if (m_pAttack != nullptr &&m_pCharacter->GetIsAttackUse(static_cast<int>(eATTACK_TYPE::MIDDLE_SIDE)) == true)
 	{
+		//敵の座標へのベクトルを求める
 		DirectX::SimpleMath::Vector3 toEnemyVec =
 			DirectX::SimpleMath::Vector3(
 				m_pCharacter->GetEnemyPos().x - m_pAttack->pos.x, 
@@ -124,7 +139,22 @@ void Character3AttackMiddleSide::Update()
 			m_pAttack->pos += addVec * 0.6f;
 			//座標を設定
 			m_pAttack->attackColl.pos = m_pAttack->pos;
+			//座標から座標行列を生成
 			m_world = DirectX::SimpleMath::Matrix::CreateTranslation(m_pAttack->attackColl.pos);
+
+			//弾道の座標を配列の前から後に更新(上書き)する
+			for (int i = BALLISTIC_NUM - 2; i >= 0; --i)
+			{
+				m_ballisticPos[i + 1] = m_ballisticPos[i];
+			}
+			//先頭に現在の攻撃の座標を代入する
+			m_ballisticPos[0] = m_pAttack->pos;
+
+			//弾道の座標から行列を作成する
+			for (int i = 0;i < BALLISTIC_NUM; i++)
+			{
+				m_ballisticWorld[i] = DirectX::SimpleMath::Matrix::CreateTranslation(m_ballisticPos[i]);
+			}
 		}
 
 		//タイマーが一定時間超えたら消す
@@ -171,8 +201,17 @@ void Character3AttackMiddleSide::Render(DirectX::SimpleMath::Matrix view, Direct
 {
 	if (m_pBulletGP != nullptr)
 	{
+		//弾道を配列の後の方から描画する(透明度は後の方なるほど上がっていく)
+		for (int i = BALLISTIC_NUM - 1; i >= 0; i--)
+		{
+			m_pBallisticGPArray[i]->Draw(m_ballisticWorld[i], view, proj, DirectX::SimpleMath::Vector4(1, 1, 1, 1.0f - i * 0.1f));
+		}
+
+		//使用するプレイヤーごとに色を変える
+		//プレイヤー１用(赤)
 		if (m_pCharacter->GetPlayerID() == ePLAYER_ID::PLAYER_1)
 			m_pBulletGP->Draw(m_world, view, proj, DirectX::Colors::Red);
+		//プレイヤー２用(青)
 		else if (m_pCharacter->GetPlayerID() == ePLAYER_ID::PLAYER_2)
 			m_pBulletGP->Draw(m_world, view, proj, DirectX::Colors::Blue);
 	}
