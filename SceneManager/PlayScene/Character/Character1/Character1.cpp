@@ -23,6 +23,8 @@
 #include "CueSheet_0.h"
 #include "../../../../FrameWork/FbxResourceManager/FbxResourceManager.h"
 #include "../CharacterID.h"
+#include "Src/Cgdi.h"
+
 
 //コンストラクタ
 Character1::Character1(ePLAYER_ID playerID)
@@ -127,9 +129,9 @@ Character1::~Character1()
 //引数:なし
 //戻り値:なし
 //////////////////////////
-void Character1::Initialize(DX::DeviceResources* pDeviceResources, HWND window)
+void Character1::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 
 	//待機状態のモデルの読み込み
 	//m_pFbxModel = new FbxModel();
@@ -242,7 +244,7 @@ void Character1::Initialize(DX::DeviceResources* pDeviceResources, HWND window)
 
 	//攻撃マネージャーの読み込み、初期化
 	m_pCharacterAttackManager = std::make_unique<Character1AttackManager>();
-	m_pCharacterAttackManager->Initialize(this,pDeviceResources);
+	m_pCharacterAttackManager->Initialize(this,m_pDeviceResources);
 
 	//ヒットエフェクトマネージャーの読み込み、作成
 	m_pHitEffectManager = std::make_unique<HitEffectManager>();

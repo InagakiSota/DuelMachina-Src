@@ -35,7 +35,7 @@ public:
 	virtual ~CharacterBase();
 
 	//‰Šú‰»
-	virtual void Initialize(DX::DeviceResources* pDeviceResources,HWND window) = 0;
+	virtual void Initialize() = 0;
 	//XV
 	virtual void Update(DX::StepTimer const& timer) = 0;
 	//•`‰æ

@@ -36,6 +36,7 @@
 #include "CueSheet_0.h"
 
 #include "../../FrameWork/LoadDisplay/LoadDisplay.h"
+#include "Src/Cgdi.h"
 
 //体力バーの横幅
 const float PlayScene::HP_BAR_WIDTH =800.0f;
@@ -173,10 +174,10 @@ PlayScene::~PlayScene()
 //引数:デバイスリソースのポインタ
 //戻り値:なし
 //////////////////////////
-void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates)
+void PlayScene::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
-	m_pStates = pStates;
+	m_pDeviceResources = gdi->GetDeviceResources();
+	m_pStates = gdi->GetStates();
 
 	ID3D11Device1* device = m_pDeviceResources->GetD3DDevice();
 
@@ -226,7 +227,7 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 	//攻撃のマネージャーの作成
 	//m_pAttackManager = std::make_unique<AttackManager>();
 	//攻撃のマネージャーの初期化
-	AttackManager::GetInstance()->Initialize(pDeviceResources);
+	AttackManager::GetInstance()->Initialize(m_pDeviceResources);
 
 	m_space = std::make_unique<ModelObject>();
 	m_space->Create(m_pDeviceResources, L"Resources/Models/Space.cmo");
@@ -236,27 +237,27 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 	{
 		//体力バー
 		m_pHPBar[i] = std::make_unique<Sprite2D>();
-		m_pHPBar[i]->Create(device, context, L"Resources/Textures/HPBar.png", m_pStates);
+		m_pHPBar[i]->Create(L"Resources/Textures/HPBar.png");
 
 		//体力バー(体力低)
 		m_pHPBarDanger[i] = std::make_unique<Sprite2D>();
-		m_pHPBarDanger[i]->Create(device, context, L"Resources/Textures/HPBar_Red.jpg", m_pStates);
+		m_pHPBarDanger[i]->Create(L"Resources/Textures/HPBar_Red.jpg");
 
 		//体力バーの背景
 		m_pHPBarBack[i] = std::make_unique<Sprite2D>();
-		m_pHPBarBack[i]->Create(device, context, L"Resources/Textures/HPBar_Gray.jpg", m_pStates);
+		m_pHPBarBack[i]->Create(L"Resources/Textures/HPBar_Gray.jpg");
 
 		//ブースト容量バー
 		m_pBoostBar[i] = std::make_unique<Sprite2D>();
-		m_pBoostBar[i]->Create(device, context, L"Resources/Textures/BoostBar.jpg", m_pStates);
+		m_pBoostBar[i]->Create( L"Resources/Textures/BoostBar.jpg");
 
 		//ブースト容量バー(オーバーヒート)
 		m_pBoostOverHeatBar[i] = std::make_unique<Sprite2D>();
-		m_pBoostOverHeatBar[i]->Create(device, context, L"Resources/Textures/BoostBar_OverHeat.jpg", m_pStates);
+		m_pBoostOverHeatBar[i]->Create( L"Resources/Textures/BoostBar_OverHeat.jpg");
 
 		//ブースト容量バーの背景
 		m_pBoostBack[i] = std::make_unique<Sprite2D>();
-		m_pBoostBack[i]->Create(device, context, L"Resources/Textures/BoostBar_Gray.jpg", m_pStates);
+		m_pBoostBack[i]->Create(L"Resources/Textures/BoostBar_Gray.jpg");
 
 		//頭上画像
 		m_pOverHeadSprite[i] = std::make_unique<Sprite2D>();
@@ -267,7 +268,7 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 		for(int j = 0; j < WIN_NUM;j++)
 		{
 			m_pWinNumSprtie[i][j] = std::make_unique<Sprite2D>();
-			m_pWinNumSprtie[i][j]->Create(device, context, L"Resources/Textures/winNum.png", m_pStates);
+			m_pWinNumSprtie[i][j]->Create( L"Resources/Textures/winNum.png");
 
 			//切り取り位置の設定
 			m_winNumSpriteRect[i][j].top = 0;
@@ -282,8 +283,8 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 
 	}
 	//頭上画像の読み込み
-	m_pOverHeadSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Create(device, context, L"Resources/Textures/p1Icon.png", m_pStates);
-	m_pOverHeadSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Create(device, context, L"Resources/Textures/p2Icon.png", m_pStates);
+	m_pOverHeadSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Create( L"Resources/Textures/p1Icon.png");
+	m_pOverHeadSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Create( L"Resources/Textures/p2Icon.png");
 
 
 	//体力バーの切り取り位置の初期化
@@ -334,7 +335,7 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 	//床の作成
 	m_floorBox.pos = DirectX::SimpleMath::Vector3(0.0f, -2.0f, 0.0f);
 	m_floorBox.size_h = DirectX::SimpleMath::Vector3(5.0f, 0.25f, 1.0f);
-	m_pFloor = DirectX::GeometricPrimitive::CreateBox(pDeviceResources->GetD3DDeviceContext(), m_floorBox.size_h*2);
+	m_pFloor = DirectX::GeometricPrimitive::CreateBox(m_pDeviceResources->GetD3DDeviceContext(), m_floorBox.size_h*2);
 	m_floorWorld = DirectX::SimpleMath::Matrix::CreateTranslation(m_floorBox.pos);
 
 	//プレイヤーの作成
@@ -350,51 +351,51 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 	{
 		m_pWinSprite[i] = std::make_unique<Sprite2D>();
 	}
-	m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Create(device, context, L"Resources/Textures/p1win.png", m_pStates);
-	m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Create(device, context, L"Resources/Textures/p2win.png", m_pStates);
+	m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Create(L"Resources/Textures/p1win.png");
+	m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Create(L"Resources/Textures/p2win.png");
 
 	//ラウンド数の画像の読み込み
 	for (int i = 0; i < static_cast<int>(eROUND::ROUND_NUM); i++)
 	{
 		m_pRoundSprite[i] = std::make_unique<Sprite2D>();
 	}
-	m_pRoundSprite[static_cast<int>(eROUND::ROUND_1)]->Create(device, context, L"Resources/Textures/Round1.png", m_pStates);
-	m_pRoundSprite[static_cast<int>(eROUND::ROUND_2)]->Create(device, context, L"Resources/Textures/Round2.png", m_pStates);
-	m_pRoundSprite[static_cast<int>(eROUND::ROUND_3)]->Create(device, context, L"Resources/Textures/Round3.png", m_pStates);
+	m_pRoundSprite[static_cast<int>(eROUND::ROUND_1)]->Create(L"Resources/Textures/Round1.png");
+	m_pRoundSprite[static_cast<int>(eROUND::ROUND_2)]->Create(L"Resources/Textures/Round2.png");
+	m_pRoundSprite[static_cast<int>(eROUND::ROUND_3)]->Create(L"Resources/Textures/Round3.png");
 
 	//Fight画像の読み込み
 	m_pFightSprite = std::make_unique<Sprite2D>();
-	m_pFightSprite->Create(device, context, L"Resources/Textures/Fight.png", m_pStates);
+	m_pFightSprite->Create(L"Resources/Textures/Fight.png");
 
 	//タイムアップ画像の読み込み
 	m_pTimeUpSprite = std::make_unique<Sprite2D>();
-	m_pTimeUpSprite->Create(device, context, L"Resources/Textures/TimeUp.png", m_pStates);
+	m_pTimeUpSprite->Create( L"Resources/Textures/TimeUp.png");
 
 	//引き分け画像の読み込み
 	m_pDrawSprite = std::make_unique<Sprite2D>();
-	m_pDrawSprite->Create(device, context, L"Resources/Textures/Draw.png", m_pStates);
+	m_pDrawSprite->Create(L"Resources/Textures/Draw.png");
 
 	//制限時間の画像の読み込み
 	m_pTimeSpriteOne = std::make_unique<Sprite2D>();
-	m_pTimeSpriteOne->Create(device, context, L"Resources/Textures/Number_mini.png", m_pStates);
+	m_pTimeSpriteOne->Create(L"Resources/Textures/Number_mini.png");
 	m_pTimeSpriteTen= std::make_unique<Sprite2D>();
-	m_pTimeSpriteTen->Create(device, context, L"Resources/Textures/Number_mini.png", m_pStates);
+	m_pTimeSpriteTen->Create(L"Resources/Textures/Number_mini.png");
 
 	//メニューの画像読み込み
 	m_pMenuSprite = std::make_unique<Sprite2D>();
-	m_pMenuSprite->Create(device, context, L"Resources/Textures/Menu.png", m_pStates);
+	m_pMenuSprite->Create(L"Resources/Textures/Menu.png");
 	m_pMenuCursorSprite = std::make_unique<Sprite2D>();
-	m_pMenuCursorSprite->Create(device, context, L"Resources/Textures/menuCursol.png", m_pStates);
+	m_pMenuCursorSprite->Create(L"Resources/Textures/menuCursol.png");
 
 	//pushSpaceの画像読み込み
 	m_pPushSpaceResult = std::make_unique<Sprite2D>();
-	m_pPushSpaceResult->Create(device, context, L"Resources/Textures/pushSpace_result.png", m_pStates);
+	m_pPushSpaceResult->Create(L"Resources/Textures/pushSpace_result.png");
 
 
 	//プレイヤーの初期化
 	for (int i = 0; i < PLAYER_NUM; i++)
 	{
-		m_pPlayer[i]->Initialize(pDeviceResources,window);
+		m_pPlayer[i]->Initialize();
 		m_pPlayer[i]->SetAttackManager(AttackManager::GetInstance());
 		//プレイヤーの勝利本数の初期化
 		m_playerWinNum[i] = 0;
@@ -454,34 +455,34 @@ void PlayScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, D
 	m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = MANUAL_SPRITE_WIDTH;
 
 	m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)]
-		->Create(device, context, L"Resources/Textures/Manual_1.png", m_pStates);
+		->Create(L"Resources/Textures/Manual_1.png");
 
 	//操作説明のカーソル画像の読み込み
 	m_pManualCursorSpriteRight = std::make_unique<Sprite2D>();
-	m_pManualCursorSpriteRight->Create(device, context, L"Resources/Textures/ManualCursolr_Right.png", m_pStates);
+	m_pManualCursorSpriteRight->Create( L"Resources/Textures/ManualCursolr_Right.png");
 	m_pManualCursorSpriteLeft = std::make_unique<Sprite2D>();
-	m_pManualCursorSpriteLeft->Create(device, context, L"Resources/Textures/ManualCursolr_Left.png", m_pStates);
+	m_pManualCursorSpriteLeft->Create( L"Resources/Textures/ManualCursolr_Left.png");
 
 	switch (CharacterFactory::m_player1Chara)
 	{
 		case eCHARACTER_ID::CHARACTER_1:
 		{
 			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
-				->Create(device, context, L"Resources/Textures/Manual_2_chara1.png", m_pStates);
+				->Create( L"Resources/Textures/Manual_2_chara1.png");
 			break;
 		}
 
 		case eCHARACTER_ID::CHARACTER_2:
 		{
 			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
-				->Create(device, context, L"Resources/Textures/Manual_2_chara2.png", m_pStates);
+				->Create( L"Resources/Textures/Manual_2_chara2.png");
 			break;
 		}
 
 		case eCHARACTER_ID::CHARACTER_3:
 		{
 			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
-				->Create(device, context, L"Resources/Textures/Manual_2_chara3.png", m_pStates);
+				->Create(L"Resources/Textures/Manual_2_chara3.png");
 			break;
 		}
 

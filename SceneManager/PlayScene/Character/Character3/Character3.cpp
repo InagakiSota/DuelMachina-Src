@@ -18,6 +18,7 @@
 #include "CueSheet_0.h"
 #include "../../../../FrameWork/FbxResourceManager/FbxResourceManager.h"
 #include "../CharacterID.h"
+#include "Src/Cgdi.h"
 
 
 //コンストラクタ
@@ -107,9 +108,9 @@ Character3::~Character3()
 //引数:なし
 //戻り値:なし
 //////////////////////////
-void Character3::Initialize(DX::DeviceResources* pDeviceResources, HWND window)
+void Character3::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 
 	//FBXを読み込んでモデルを作成
 	//待機

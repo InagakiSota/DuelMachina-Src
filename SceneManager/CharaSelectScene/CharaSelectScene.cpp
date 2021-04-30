@@ -18,6 +18,7 @@
 
 #include "../../FrameWork/FbxResourceManager/FbxResourceManager.h"
 #include "../PlayScene/Character/ChracterAnimationNumber.h"
+#include "Src/Cgdi.h"
 
 const DirectX::SimpleMath::Vector2 CharaSelectScene::CHARA1_ICON_POS = DirectX::SimpleMath::Vector2(250.0f, 260.0f);
 const DirectX::SimpleMath::Vector2 CharaSelectScene::CHARA2_ICON_POS = DirectX::SimpleMath::Vector2(810.0f, 260.0f);
@@ -71,10 +72,10 @@ CharaSelectScene::~CharaSelectScene()
 //引数:ウィンドウ、デバイス
 //戻り値:なし
 //////////////////////////
-void CharaSelectScene::Initialize(HWND window, DX::DeviceResources * pDeviceResources, DirectX::CommonStates* pStates)
+void CharaSelectScene::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
-	m_pStates = pStates;
+	m_pDeviceResources = gdi->GetDeviceResources();
+	m_pStates = gdi->GetStates();
 
 	auto device = m_pDeviceResources->GetD3DDevice();
 	auto context = m_pDeviceResources->GetD3DDeviceContext();
@@ -118,7 +119,7 @@ void CharaSelectScene::Initialize(HWND window, DX::DeviceResources * pDeviceReso
 
 	//背景画像の読み込み
 	m_pSelectSprite = std::make_unique<Sprite2D>();
-	m_pSelectSprite->Create(device, context, L"Resources/Textures/CharacterSelect2.png", m_pStates);
+	m_pSelectSprite->Create(L"Resources/Textures/CharacterSelect2.png");
 
 	//キャラクターのアイコンの読み込み
 	for (int i = 0; i < static_cast<int>(eCHARACTER_ID::OVER_ID); i++)
@@ -127,22 +128,22 @@ void CharaSelectScene::Initialize(HWND window, DX::DeviceResources * pDeviceReso
 		m_pCharaInfoSprite[i] = std::make_unique<Sprite2D>();
 	}
 	m_pCharacterSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_1)]->Create(
-		device, context, L"Resources/Textures/character1_icon.png", m_pStates);
+		L"Resources/Textures/character1_icon.png");
 	m_pCharacterSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_2)]->Create(
-		device, context, L"Resources/Textures/character2_icon.png", m_pStates);
+		L"Resources/Textures/character2_icon.png");
 	m_pCharacterSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_3)]->Create(
-		device, context, L"Resources/Textures/character3_icon.png", m_pStates);
+		L"Resources/Textures/character3_icon.png");
 	
 	m_pCharaInfoSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_1)]->Create(
-		device, context, L"Resources/Textures/charaInfo_1.png", m_pStates);
+		L"Resources/Textures/charaInfo_1.png");
 	m_pCharaInfoSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_2)]->Create(
-		device, context, L"Resources/Textures/charaInfo_2.png", m_pStates);
+		L"Resources/Textures/charaInfo_2.png");
 	m_pCharaInfoSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_3)]->Create(
-		device, context, L"Resources/Textures/charaInfo_3.png", m_pStates);
+		L"Resources/Textures/charaInfo_3.png");
 
 	//操作説明の画像の読み込み
 	m_pManualSprite = std::make_unique<Sprite2D>();
-	m_pManualSprite->Create(device, context, L"Resources/Textures/Manual_1_charaSelect.png", m_pStates);
+	m_pManualSprite->Create(L"Resources/Textures/Manual_1_charaSelect.png");
 	//操作説明の画像の初期座標設定
 	m_ManualSpritePos = DirectX::SimpleMath::Vector2(0, -MANUAL_SPRITE_HEIGHT);
 
@@ -163,7 +164,7 @@ void CharaSelectScene::Initialize(HWND window, DX::DeviceResources * pDeviceReso
 
 	//カーソルの画像の読み込み
 	m_pCursolSprite = std::make_unique<Sprite2D>();
-	m_pCursolSprite->Create(device,context, L"Resources/Textures/SelectCursol.png", m_pStates);
+	m_pCursolSprite->Create(L"Resources/Textures/SelectCursol.png");
 	//カーソルの画像の初期座標設定
 	m_pCursolSprite->Update(CHARA1_ICON_POS.x - CURSOL_POS, CHARA1_ICON_POS.y - CURSOL_POS);
 

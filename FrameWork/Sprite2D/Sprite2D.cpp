@@ -8,6 +8,7 @@
 #include "Sprite2D.h"
 #include "SimpleMath.h"
 #include "WICTextureLoader.h"
+#include "Src/Cgdi.h"
 
 //コンストラクタ
 Sprite2D::Sprite2D()
@@ -22,17 +23,18 @@ Sprite2D::~Sprite2D()
 {
 	if (m_spriteBatch != nullptr)
 	{
-		m_spriteBatch.reset();
+		m_spriteBatch = nullptr;
 	}
 	m_pStates = nullptr;
 }
 
 //生成
-void Sprite2D::Create(ID3D11Device1 * device, ID3D11DeviceContext1 * context, const wchar_t* fileName, DirectX::CommonStates* pStates)
+void Sprite2D::Create(const wchar_t* fileName)
 {
-	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(context);
-	DirectX::CreateWICTextureFromFile(device, fileName, NULL, m_texture.ReleaseAndGetAddressOf());
-	m_pStates = pStates;
+	
+	m_spriteBatch = gdi->GetSprite();
+	DirectX::CreateWICTextureFromFile(gdi->GetDeviceResources()->GetD3DDevice(), fileName, NULL, m_texture.ReleaseAndGetAddressOf());
+	m_pStates = gdi->GetStates();
 
 	m_rect.top = 0;
 	m_rect.left = 0;
@@ -87,7 +89,7 @@ void Sprite2D::Draw(bool isAlpha, bool isRect, DirectX::FXMVECTOR color)
 void Sprite2D::Reset()
 {
 	m_texture.Reset();
-	m_spriteBatch.reset();
+	m_spriteBatch = nullptr;
 }
 
 //更新

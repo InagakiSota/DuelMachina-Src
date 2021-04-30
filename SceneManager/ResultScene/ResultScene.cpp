@@ -11,6 +11,7 @@
 #include "../SceneManager.h"
 #include "Src\FrameWork\Sprite2D\Sprite2D.h"
 #include "Src\FrameWork\FadeManager\FadeManager.h"
+#include "Src/Cgdi.h"
 
 ePLAYER_ID ResultScene::m_winPlayerID = ePLAYER_ID::PLAYER_1;
 
@@ -30,11 +31,11 @@ ResultScene::~ResultScene()
 //引数:ウィンドウ、デバイスのポインタ
 //戻り値:なし
 //////////////////////////
-void ResultScene::Initialize(HWND window, DX::DeviceResources * pDeviceResources, DirectX::CommonStates* pStates)
+void ResultScene::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 
-	m_pStates = pStates;
+	m_pStates = gdi->GetStates();
 
 	auto device = m_pDeviceResources->GetD3DDevice();
 
@@ -64,9 +65,9 @@ void ResultScene::Initialize(HWND window, DX::DeviceResources * pDeviceResources
 	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
 
 	m_winPlayer1Sprite = std::make_unique<Sprite2D>();
-	m_winPlayer1Sprite->Create(device, context, L"Resources/Textures/p1win_result.png", m_pStates);
+	m_winPlayer1Sprite->Create(L"Resources/Textures/p1win_result.png");
 	m_winPlayer2Sprite = std::make_unique<Sprite2D>();
-	m_winPlayer2Sprite->Create(device, context, L"Resources/Textures/p2win_result.png", m_pStates);
+	m_winPlayer2Sprite->Create(L"Resources/Textures/p2win_result.png");
 	m_winPlayer1Sprite->Update(640.0f, 300.0f);
 	m_winPlayer2Sprite->Update(640.0f, 300.0f);
 

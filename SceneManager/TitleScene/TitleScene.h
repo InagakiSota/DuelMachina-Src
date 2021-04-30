@@ -17,7 +17,7 @@ public:
 	TitleScene();
 	~TitleScene();
 
-	void Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates) override;		//‰Šú‰»
+	void Initialize() override;		//‰Šú‰»
 	void Update(DX::StepTimer const& timer)override;			//XV
 	void Render()override;			//•`‰æ
 	void Finalize()override;		//I—¹ˆ—

@@ -49,7 +49,8 @@ void Cgdi::Initialize(DX::DeviceResources* deviceResources, float width, float h
 	// コモンステートの生成
 	m_states = std::make_unique<DirectX::CommonStates>(device);
 
-
+	//スプライトバッチの生成
+	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(deviceContext);
 
 
 }

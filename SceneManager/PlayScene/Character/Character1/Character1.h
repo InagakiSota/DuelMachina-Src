@@ -19,7 +19,7 @@ public:
 	~Character1();
 
 	//‰Šú‰»
-	void Initialize(DX::DeviceResources* pDeviceResources, HWND window) override;
+	void Initialize() override;
 	//XV
 	void Update(DX::StepTimer const& timer) override;
 	//•`‰æ

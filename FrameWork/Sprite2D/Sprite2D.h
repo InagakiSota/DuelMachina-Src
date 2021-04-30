@@ -17,7 +17,7 @@ public:
 	~Sprite2D();
 
 	//生成
-	void Create(ID3D11Device1* device, ID3D11DeviceContext1* context, const wchar_t* fileName, DirectX::CommonStates* pStates);
+	void Create(const wchar_t* fileName);
 	//描画
 	void Draw(bool isAlpha = false, bool isRect = false, DirectX::FXMVECTOR color = DirectX::SimpleMath::Vector4(1,1,1,1));
 	//リセット
@@ -30,7 +30,7 @@ public:
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
+	DirectX::SpriteBatch* m_spriteBatch;
 	//画像の座標
 	DirectX::SimpleMath::Vector2 m_pos;
 	//画像切り取り位置

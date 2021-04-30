@@ -38,7 +38,7 @@ public:
 	//デストラクタ
 	~PlayScene();			
 	//初期化
-	void Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates) override;	
+	void Initialize() override;	
 	//更新
 	void Update(DX::StepTimer const& timer) override;			
 	//描画

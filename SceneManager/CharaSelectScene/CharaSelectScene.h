@@ -21,7 +21,7 @@ public:
 	~CharaSelectScene();
 
 	//‰Šú‰»
-	void Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates) override;		
+	void Initialize() override;		
 	//XV
 	void Update(DX::StepTimer const& timer)override;
 	//•`‰æ

@@ -17,6 +17,7 @@
 
 #include "Adx2.h"
 #include "CueSheet_0.h"
+#include "Src/Cgdi.h"
 
 
 //pushSpaceの画像の座標
@@ -63,11 +64,11 @@ TitleScene::~TitleScene()
 //引数:デバイスリソースのポインタ
 //戻り値:なし
 //////////////////////////
-void TitleScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates)
+void TitleScene::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 
-	m_pStates = pStates;
+	m_pStates = gdi->GetStates();
 
 	auto device = m_pDeviceResources->GetD3DDevice();
 	auto context = m_pDeviceResources->GetD3DDeviceContext();
@@ -94,10 +95,10 @@ void TitleScene::Initialize(HWND window, DX::DeviceResources* pDeviceResources, 
 
 	//ロゴ画像の読み込み
 	m_pLogoSprite = std::make_unique<Sprite2D>();
-	m_pLogoSprite->Create(device,context,L"Resources/Textures/logo.png",m_pStates);
+	m_pLogoSprite->Create(L"Resources/Textures/logo.png");
 	//pushSpaceの画像の読み込み
 	m_pSpaceSprite = std::make_unique<Sprite2D>();
-	m_pSpaceSprite->Create(device, context, L"Resources/Textures/pushSpace.png", m_pStates);
+	m_pSpaceSprite->Create(L"Resources/Textures/pushSpace.png");
 
 	//天球のモデル読み込み
 	m_pSkyBox = std::make_unique<ModelObject>();

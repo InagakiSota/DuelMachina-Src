@@ -19,7 +19,7 @@
 #include "CueSheet_0.h"
 #include "../../../../FrameWork/FbxResourceManager/FbxResourceManager.h"
 #include "../CharacterID.h"
-
+#include "Src/Cgdi.h"
 
 
 //コンストラクタ
@@ -106,9 +106,9 @@ Character2::~Character2()
 //引数:なし
 //戻り値:なし
 //////////////////////////
-void Character2::Initialize(DX::DeviceResources* pDeviceResources, HWND window)
+void Character2::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 
 	////CMOを読み込んでモデルを作成する
 	//m_pModel = std::make_unique<ModelObject>();
@@ -125,6 +125,7 @@ void Character2::Initialize(DX::DeviceResources* pDeviceResources, HWND window)
 	//	"Resources/Models/robot2/robot2animation.fbx",
 	//	true
 	//);
+
 	m_pFbxModel = FbxResourceManager::GetInstance()->GetModel(eCHARACTER_ID::CHARACTER_2);
 
 	//m_pShieldModel = new FbxModel();

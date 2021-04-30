@@ -18,8 +18,7 @@ LoadDisplay* LoadDisplay::m_pMyInstance = nullptr;
 void LoadDisplay::Initialize(DX::DeviceResources * pDeviceResources, DirectX::CommonStates * pStates)
 {
 	m_pLoadSprite = std::make_unique<Sprite2D>();
-	m_pLoadSprite->Create(pDeviceResources->GetD3DDevice(), pDeviceResources->GetD3DDeviceContext(),
-		L"Resources/Textures/Load.png", pStates);
+	m_pLoadSprite->Create(L"Resources/Textures/Load.png");
 
 	
 	m_color = DirectX::SimpleMath::Vector4(1.0f, 1.0f, 1.0f, 1.0f);

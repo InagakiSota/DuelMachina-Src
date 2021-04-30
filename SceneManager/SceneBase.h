@@ -21,7 +21,7 @@ public:
 	}
 
 	//‰Šú‰»
-	virtual void Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates) = 0;
+	virtual void Initialize() = 0;
 	//XV
 	virtual void Update(DX::StepTimer const& timer) = 0;
 	//•`‰æ

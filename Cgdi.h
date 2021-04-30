@@ -8,6 +8,7 @@
 #include "DeviceResources.h"
 #include <CommonStates.h>
 #include <SimpleMath.h>
+#include <SpriteBatch.h>
 
 // 簡単に呼び出せるように定義しておく
 #define gdi Cgdi::GetInstance()
@@ -43,6 +44,12 @@ public:
 		return m_states.get(); 
 	}
 
+	// スプライトバッチを取得する関数
+	DirectX::SpriteBatch* GetSprite() 
+	{
+		return m_spriteBatch.get();
+	}
+
 
 
 private:
@@ -64,6 +71,9 @@ private:
 
 	// 射影行列
 	DirectX::SimpleMath::Matrix m_projection;
+
+	//スプライトバッチ
+	std::unique_ptr<DirectX::SpriteBatch> m_spriteBatch;
 
 	// コンストラクタ
 	Cgdi();

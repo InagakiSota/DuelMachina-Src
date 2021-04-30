@@ -147,7 +147,7 @@ void SceneManager::SetScene(const eSCENE_ID scene)
 	}
 	//ƒV[ƒ“‚Ì‰Šú‰»
 	if (m_pScene != nullptr)
-		m_pScene->Initialize(m_window, m_pDeviceResources, m_pStates);
+		m_pScene->Initialize();
 }
 
 ///////////////////////////
