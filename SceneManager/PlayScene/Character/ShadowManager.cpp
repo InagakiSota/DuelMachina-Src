@@ -10,6 +10,7 @@
 #include "../../BinaryFile.h"
 #include <Effects.h>
 #include <Model.h>
+#include "Src/Cgdi.h"
 
 const std::vector<D3D11_INPUT_ELEMENT_DESC> ShadowManager::INPUT_LAYOUT =
 {
@@ -68,13 +69,13 @@ ShadowManager::~ShadowManager()
 //引数:なし
 //戻り値:なし
 //////////////////////////
-void ShadowManager::Initialize(DX::DeviceResources* deviceResources, int count, float life, DirectX::SimpleMath::Vector3 pos)
+void ShadowManager::Initialize(int count, float life, DirectX::SimpleMath::Vector3 pos)
 {
-	m_deviceResources = deviceResources;
+	m_deviceResources = gdi->GetDeviceResources();
 	auto device = m_deviceResources->GetD3DDevice();
 
 	//const wchar_t* name = L"Resources\\Textures\\image01.png";
-	DirectX::CreateWICTextureFromFile(deviceResources->GetD3DDevice(), L"Resources\\Textures\\shadow.png", nullptr, m_texture.GetAddressOf());
+	DirectX::CreateWICTextureFromFile(m_deviceResources->GetD3DDevice(), L"Resources\\Textures\\shadow.png", nullptr, m_texture.GetAddressOf());
 	//DirectX::CreateWICTextureFromFile(deviceResources->GetD3DDevice(), L"Resources\\Textures\\hight.png", nullptr, m_texture2.GetAddressOf());
 
 	// コンパイルされたシェーダファイルを読み込み

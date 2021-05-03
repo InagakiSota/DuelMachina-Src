@@ -37,47 +37,21 @@
 
 #include "../../FrameWork/LoadDisplay/LoadDisplay.h"
 #include "Src/Cgdi.h"
+#include "UI/PlaySceneUI.h"
 
-//体力バーの横幅
-const float PlayScene::HP_BAR_WIDTH =800.0f;
-//体力バーの高さ
-const float PlayScene::HP_BAR_HEIGHT = 101.0f;
-//体力バーのマージン
-const float PlayScene::HP_BAR_MARGIN = 20.0f;
-
-//ブースト容量バーの横幅
-const float PlayScene::BOOST_BAR_WIDTH = 700.0f;
-//体力バーの高さ
-const float PlayScene::BOOST_BAR_HEIGHT = 70.0f;
-
-//カウントダウンの時間
-const float PlayScene::COUNT_DOWN_TIME = 3.0f;
-//カウントダウン画像の座標
-const DirectX::SimpleMath::Vector2 PlayScene::COUNT_DOWN_SPRITE_POS = DirectX::SimpleMath::Vector2(640.0f,300.0f);
- //制限時間の最大値
- const float PlayScene::TIME_MAX = 60;
- //タイムアップシーンの時間
- const float PlayScene::TIME_UP_TIME = 3.0f;
- //ラウンド切り替えの時間
- const float PlayScene::ROUND_CHANGE_TIME = 2.0f;
- //勝利本数の画像の横幅
- const float PlayScene::WIN_NUM_SPRITE_WIDTH = 100.0f;
- //勝利本数の画像の高さ
- const float  PlayScene::WIN_NUM_SPRITE_HEIGHT = 50.0f;
- //制限時間の画像の横幅
- const float PlayScene::TIME_SPRITE_WIDTH = 100.0f;
- //制限時間の画像の高さ
- const float PlayScene::TIME_SPRITE_HEIGHT = 200.0f;
- //制限時間の画像のX座標
- const float PlayScene::TIME_SPRITE_POS_X = 960.0f;
 
  //操作説明の画像の横幅
  const float PlayScene::MANUAL_SPRITE_WIDTH = 1920.0f;
  //操作説明の画像の高さ
  const float PlayScene::MANUAL_SPRITE_HEIGHT = 1080.0f;
- //リザルトのpushSpaceの画像の座標
- const DirectX::SimpleMath::Vector2  PlayScene::PUSH_SPACE_RESULT_POS = 
-	 DirectX::SimpleMath::Vector2(1300.0f,800.0f);
+ //カウントダウンの時間
+ const float PlayScene::COUNT_DOWN_TIME = 3.0f;
+ //制限時間の最大値
+ const float PlayScene::TIME_MAX = 60.0f;
+ //タイムアップシーンの制限時間
+ const float PlayScene::TIME_UP_TIME = 3.0f;
+ //ラウンド切り替え時の時間
+ const float PlayScene::ROUND_CHANGE_TIME = 1.0f;
 
  //カーソルの座標
  const DirectX::SimpleMath::Vector2 PlayScene::MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::OVER_ID)] =
@@ -85,20 +59,6 @@ const DirectX::SimpleMath::Vector2 PlayScene::COUNT_DOWN_SPRITE_POS = DirectX::S
 	DirectX::SimpleMath::Vector2(630.0f,300.0f),
 	DirectX::SimpleMath::Vector2(630.0f,500.0f),
 	DirectX::SimpleMath::Vector2(630.0f,700.0f)
- };
-
- //体力バーの座標
- const DirectX::SimpleMath::Vector2 PlayScene::HP_BAR_POS[PlayScene::PLAYER_NUM] =
- {
-	 DirectX::SimpleMath::Vector2(20.0f,50.0f),
-	 DirectX::SimpleMath::Vector2(1900.0f - HP_BAR_WIDTH,50.0f)
- };
-
- //体力バーの座標
- const DirectX::SimpleMath::Vector2 PlayScene::BOOST_BAR_POS[PlayScene::PLAYER_NUM] =
- {
-	 DirectX::SimpleMath::Vector2(20.0f,900.0f),
-	 DirectX::SimpleMath::Vector2(1900.0f - BOOST_BAR_WIDTH,900.0f)
  };
 
 
@@ -111,11 +71,6 @@ PlayScene::PlayScene()
 	m_space(nullptr),
 	m_spaceWorld{},
 	//m_pAttackManager(nullptr),
-	m_hpBarPos{},
-	m_timeSpriteOneRect{},
-	m_timeSpriteTenRect{},
-	m_pTimeSpriteOne(nullptr),
-	m_pTimeSpriteTen(nullptr),
 	m_pShadowManager{}
 {
 	m_pDeviceResources = nullptr;
@@ -124,7 +79,6 @@ PlayScene::PlayScene()
 	m_sceneState = eSCENE_STATE::FADE_IN;
 	m_countdownTimer = 0.0f;
 	m_cameraPos.Zero;
-	m_winSpritePos.Zero;
 	m_fadeTimer = 1.0f;
 
 	m_isStop = false;
@@ -149,12 +103,6 @@ PlayScene::~PlayScene()
 	for (int i = 0; i < PLAYER_NUM; i++)
 	{
 		m_pPlayer[i] = nullptr;
-		m_pHPBar[i].reset();
-		m_pHPBar[i] = nullptr;
-		m_pHPBarBack[i].reset();
-		m_pHPBarBack[i] = nullptr;
-		m_pWinSprite[i].reset();
-		m_pWinSprite[i] = nullptr;
 		m_pShadowManager[i].reset();
 	}
 
@@ -162,8 +110,6 @@ PlayScene::~PlayScene()
 	AttackManager::ReleaseInstance();
 
 
-	m_pTimeSpriteOne.reset();
-	m_pTimeSpriteTen.reset();
 
 
 	m_pDeviceResources = nullptr;
@@ -186,7 +132,6 @@ void PlayScene::Initialize()
 
 	auto context = m_pDeviceResources->GetD3DDeviceContext();
 
-
 	m_spaceWorld = DirectX::SimpleMath::Matrix::Identity;
 
 	//ビュー行列を作成する
@@ -206,127 +151,12 @@ void PlayScene::Initialize()
 	//シーンのステートの初期化
 	m_sceneState = eSCENE_STATE::FADE_IN;
 
-
-	////マウスの作成
-	//m_pMouse = std::make_unique<Mouse>();
-	//m_pMouse->SetWindow(window);
-
-	////キーボードの作成
-	//m_pKeyboard = std::make_unique<Keyboard>();
-
-
-	//m_pFbx = std::make_unique<Fbx>();
-	//m_pFbx->Load(
-	//	window,
-	//	m_pDeviceResources->GetD3DDevice(),
-	//	m_pDeviceResources->GetD3DDeviceContext(),
-	//	m_pDeviceResources->GetRenderTargetView(),
-	//	"Resources/Models/robot_maya9.fbx",
-	//	true);
-
-	//攻撃のマネージャーの作成
-	//m_pAttackManager = std::make_unique<AttackManager>();
 	//攻撃のマネージャーの初期化
 	AttackManager::GetInstance()->Initialize(m_pDeviceResources);
 
 	m_space = std::make_unique<ModelObject>();
 	m_space->Create(m_pDeviceResources, L"Resources/Models/Space.cmo");
 
-	//体力バー、ブースト容量バーの読み込み
-	for (int i = 0; i < PLAYER_NUM; i++)
-	{
-		//体力バー
-		m_pHPBar[i] = std::make_unique<Sprite2D>();
-		m_pHPBar[i]->Create(L"Resources/Textures/HPBar.png");
-
-		//体力バー(体力低)
-		m_pHPBarDanger[i] = std::make_unique<Sprite2D>();
-		m_pHPBarDanger[i]->Create(L"Resources/Textures/HPBar_Red.jpg");
-
-		//体力バーの背景
-		m_pHPBarBack[i] = std::make_unique<Sprite2D>();
-		m_pHPBarBack[i]->Create(L"Resources/Textures/HPBar_Gray.jpg");
-
-		//ブースト容量バー
-		m_pBoostBar[i] = std::make_unique<Sprite2D>();
-		m_pBoostBar[i]->Create( L"Resources/Textures/BoostBar.jpg");
-
-		//ブースト容量バー(オーバーヒート)
-		m_pBoostOverHeatBar[i] = std::make_unique<Sprite2D>();
-		m_pBoostOverHeatBar[i]->Create( L"Resources/Textures/BoostBar_OverHeat.jpg");
-
-		//ブースト容量バーの背景
-		m_pBoostBack[i] = std::make_unique<Sprite2D>();
-		m_pBoostBack[i]->Create(L"Resources/Textures/BoostBar_Gray.jpg");
-
-		//頭上画像
-		m_pOverHeadSprite[i] = std::make_unique<Sprite2D>();
-
-		m_overHeadSpritePos[i] = DirectX::SimpleMath::Vector2::Zero;
-
-		//勝利本数の画像
-		for(int j = 0; j < WIN_NUM;j++)
-		{
-			m_pWinNumSprtie[i][j] = std::make_unique<Sprite2D>();
-			m_pWinNumSprtie[i][j]->Create( L"Resources/Textures/winNum.png");
-
-			//切り取り位置の設定
-			m_winNumSpriteRect[i][j].top = 0;
-			m_winNumSpriteRect[i][j].bottom = static_cast<LONG>(WIN_NUM_SPRITE_HEIGHT);
-			m_winNumSpriteRect[i][j].left = 0;
-			m_winNumSpriteRect[i][j].right = static_cast<LONG>(WIN_NUM_SPRITE_WIDTH* 0.5);
-		}
-
-		//足元の影のエフェクト
-		m_pShadowManager[i] = std::make_unique<ShadowManager>();
-		m_pShadowManager[i]->Initialize(m_pDeviceResources, 1, 10, DirectX::SimpleMath::Vector3::Zero);
-
-	}
-	//頭上画像の読み込み
-	m_pOverHeadSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Create( L"Resources/Textures/p1Icon.png");
-	m_pOverHeadSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Create( L"Resources/Textures/p2Icon.png");
-
-
-	//体力バーの切り取り位置の初期化
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].top = 0;
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].bottom = static_cast<LONG>(HP_BAR_HEIGHT);
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].left = 0;
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].right = static_cast<LONG>(HP_BAR_WIDTH);
-
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].top = 0;
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].bottom = static_cast<LONG>(HP_BAR_HEIGHT);
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].left = 0;
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].right = static_cast<LONG>(HP_BAR_WIDTH);
-
-	//ブースト容量バーの切り取り位置の初期化
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].top = 0;
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].bottom = static_cast<LONG>(BOOST_BAR_HEIGHT);
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].left = 0;
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].right = static_cast<LONG>(BOOST_BAR_WIDTH);
-
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].top = 0;
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].bottom = static_cast<LONG>(BOOST_BAR_HEIGHT);
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].left = 0;
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].right = static_cast<LONG>(BOOST_BAR_WIDTH);
-
-
-	//体力バー、ブースト容量バーの初期座標設定
-	for (int i = 0; i < PLAYER_NUM; i++)
-	{
-		m_hpBarPos[i] = HP_BAR_POS[i];
-		m_boostBarPos[i] = BOOST_BAR_POS[i];
-	}
-
-	//勝利本数の画像の初期座標設定
-	for (int i = 0; i < WIN_NUM; i++)
-	{
-		//プレイヤー1
-		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)][i].y = 170.0f;
-		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)][i].x = 70.0f + ((WIN_NUM_SPRITE_WIDTH * 0.5f + 10) * i);
-		//プレイヤー2
-		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)][i].y = 170.0f;
-		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)][i].x = 1920.0f - ((WIN_NUM_SPRITE_WIDTH * 0.5f + 10) * (i + 1)) - 70.0f;
-	}
 
 	DebugFont::GetInstance()->Create(device, context);
 
@@ -346,40 +176,6 @@ void PlayScene::Initialize()
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetStartPos(DirectX::SimpleMath::Vector3(-2.0f, 1.0f, 0.0f));
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetStartPos(DirectX::SimpleMath::Vector3(2.0f, 1.0f, 0.0f));
 
-	//勝利画像の読み込み
-	for (int i = 0; i < PLAYER_NUM; i++)
-	{
-		m_pWinSprite[i] = std::make_unique<Sprite2D>();
-	}
-	m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Create(L"Resources/Textures/p1win.png");
-	m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Create(L"Resources/Textures/p2win.png");
-
-	//ラウンド数の画像の読み込み
-	for (int i = 0; i < static_cast<int>(eROUND::ROUND_NUM); i++)
-	{
-		m_pRoundSprite[i] = std::make_unique<Sprite2D>();
-	}
-	m_pRoundSprite[static_cast<int>(eROUND::ROUND_1)]->Create(L"Resources/Textures/Round1.png");
-	m_pRoundSprite[static_cast<int>(eROUND::ROUND_2)]->Create(L"Resources/Textures/Round2.png");
-	m_pRoundSprite[static_cast<int>(eROUND::ROUND_3)]->Create(L"Resources/Textures/Round3.png");
-
-	//Fight画像の読み込み
-	m_pFightSprite = std::make_unique<Sprite2D>();
-	m_pFightSprite->Create(L"Resources/Textures/Fight.png");
-
-	//タイムアップ画像の読み込み
-	m_pTimeUpSprite = std::make_unique<Sprite2D>();
-	m_pTimeUpSprite->Create( L"Resources/Textures/TimeUp.png");
-
-	//引き分け画像の読み込み
-	m_pDrawSprite = std::make_unique<Sprite2D>();
-	m_pDrawSprite->Create(L"Resources/Textures/Draw.png");
-
-	//制限時間の画像の読み込み
-	m_pTimeSpriteOne = std::make_unique<Sprite2D>();
-	m_pTimeSpriteOne->Create(L"Resources/Textures/Number_mini.png");
-	m_pTimeSpriteTen= std::make_unique<Sprite2D>();
-	m_pTimeSpriteTen->Create(L"Resources/Textures/Number_mini.png");
 
 	//メニューの画像読み込み
 	m_pMenuSprite = std::make_unique<Sprite2D>();
@@ -387,10 +183,13 @@ void PlayScene::Initialize()
 	m_pMenuCursorSprite = std::make_unique<Sprite2D>();
 	m_pMenuCursorSprite->Create(L"Resources/Textures/menuCursol.png");
 
-	//pushSpaceの画像読み込み
-	m_pPushSpaceResult = std::make_unique<Sprite2D>();
-	m_pPushSpaceResult->Create(L"Resources/Textures/pushSpace_result.png");
 
+	//UIクラスの読み込み
+	m_pPlaySceneUI = std::make_unique < PlaySceneUI>();
+	//プレイシーンのポインタを渡す
+	m_pPlaySceneUI->SetPlayScene(this);
+	//UIクラスの初期化
+	m_pPlaySceneUI->Initialize();
 
 	//プレイヤーの初期化
 	for (int i = 0; i < PLAYER_NUM; i++)
@@ -399,6 +198,10 @@ void PlayScene::Initialize()
 		m_pPlayer[i]->SetAttackManager(AttackManager::GetInstance());
 		//プレイヤーの勝利本数の初期化
 		m_playerWinNum[i] = 0;
+	    
+		//足元の影の読み込み、初期化
+		m_pShadowManager[i] = std::make_unique<ShadowManager>();
+		m_pShadowManager[i]->Initialize(1,10,DirectX::SimpleMath::Vector3::Zero);
 
 	}
 	//キートラッカーの作成
@@ -410,26 +213,6 @@ void PlayScene::Initialize()
 	//プレイシーンのステートを初期化
 	m_playSceneState = ePLAY_SCENE_STATE::COUNT_DOWN;
 
-	//勝利画像の座標設定
-	m_winSpritePos = DirectX::SimpleMath::Vector2(640.0f, 300.0f);
-
-	////FBXモデルの読み込み
-	//m_pFbxModel = new FbxModel();
-	//m_pFbxModel->Load(
-	//	window,
-	//	pDeviceResources->GetD3DDevice(),
-	//	pDeviceResources->GetD3DDeviceContext(),
-	//	pDeviceResources->GetRenderTargetView(),
-	//	"Resources/Models/robot_maya10.fbx",
-	//	true
-	//);
-
-	m_fbxModelWorld = DirectX::SimpleMath::Matrix::Identity;
-
-	DirectX::SimpleMath::Matrix trans = DirectX::SimpleMath::Matrix::CreateTranslation(0, -0.8f, 0);
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(0.08f, 0.08f, 0.08f);
-
-	m_fbxModelWorld = scale * trans;
 
 	//ラウンド数の初期化
 	m_nowRound = eROUND::ROUND_1;
@@ -463,22 +246,24 @@ void PlayScene::Initialize()
 	m_pManualCursorSpriteLeft = std::make_unique<Sprite2D>();
 	m_pManualCursorSpriteLeft->Create( L"Resources/Textures/ManualCursolr_Left.png");
 
+	//操作しているキャラクターごとに読み込む操作説明の画像を切り替える
 	switch (CharacterFactory::m_player1Chara)
 	{
+		//キャラクター１
 		case eCHARACTER_ID::CHARACTER_1:
 		{
 			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
 				->Create( L"Resources/Textures/Manual_2_chara1.png");
 			break;
 		}
-
+		//キャラクター２
 		case eCHARACTER_ID::CHARACTER_2:
 		{
 			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
 				->Create( L"Resources/Textures/Manual_2_chara2.png");
 			break;
 		}
-
+		//キャラクター３
 		case eCHARACTER_ID::CHARACTER_3:
 		{
 			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
@@ -515,165 +300,22 @@ void PlayScene::Update(DX::StepTimer const& timer)
 
 	//m_pHitEffectManager->SetRenderState(m_view, m_proj);
 
-	//UIの画像の座標設定
-	for (int i = 0; i < static_cast<int>(eROUND::ROUND_NUM); i++)
-	{
-		m_pRoundSprite[i]->Update(COUNT_DOWN_SPRITE_POS);
-	}
-	m_pFightSprite->Update(COUNT_DOWN_SPRITE_POS);
-	m_pTimeUpSprite->Update(COUNT_DOWN_SPRITE_POS);
-	m_pDrawSprite->Update(COUNT_DOWN_SPRITE_POS);
 
-	//体力のバッファの同期
 	for (int i = 0; i < PLAYER_NUM; i++)
-	{
+	{	
+		//足元の影のエフェクトの更新
+		m_pShadowManager[i]->Update(timer, m_pPlayer[i]->GetPos());
+		//体力のバッファの同期
 		m_playerHpBuffer[i] = m_pPlayer[i]->GetHP();
 	}
 
-	//体力バーの切り取り位置の更新
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].left = static_cast<LONG>(
-		(HP_BAR_WIDTH / m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetMaxHP()) *
-		(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetMaxHP() - m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP()));
-	m_hpBarPos[static_cast<int>(ePLAYER_ID::PLAYER_1)].x = m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].left + HP_BAR_MARGIN;
 
-
-	m_hpBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].right = static_cast<LONG>(HP_BAR_WIDTH -
-		((HP_BAR_WIDTH / m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetMaxHP()) *
-		(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetMaxHP() - m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())));
-
-	//ブースト容量バーの切り取り位置の更新
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].left = static_cast<LONG>(
-		(BOOST_BAR_WIDTH / m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetMaxBoostCap()) *
-		(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetMaxBoostCap() - m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBoostCap()));
-	m_boostBarPos[static_cast<int>(ePLAYER_ID::PLAYER_1)].x = m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_1)].left + HP_BAR_MARGIN;
-
-	m_boostBarRect[static_cast<int>(ePLAYER_ID::PLAYER_2)].right = static_cast<LONG>(BOOST_BAR_WIDTH -
-		((BOOST_BAR_WIDTH / m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetMaxBoostCap()) *
-		(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetMaxBoostCap() - m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBoostCap())));
-
-	//勝利本数の画像の切り取り位置の更新
-	//プレイヤー１
-	for (int i = 0; i < m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]; i++)
-	{
-		if (m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)] > 0)
-		{
-			m_winNumSpriteRect[static_cast<int>(ePLAYER_ID::PLAYER_1)][m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)] - 1].left = static_cast<LONG>(WIN_NUM_SPRITE_WIDTH * 0.5);
-			m_winNumSpriteRect[static_cast<int>(ePLAYER_ID::PLAYER_1)][m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)] - 1].right = static_cast<LONG>(WIN_NUM_SPRITE_WIDTH);
-		}
-	}
-	//プレイヤー2
-	for (int i = 0; i < m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]; i++)
-	{
-		if (m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)] > 0)
-		{
-			m_winNumSpriteRect[static_cast<int>(ePLAYER_ID::PLAYER_2)][m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)] - 1].left = static_cast<LONG>(WIN_NUM_SPRITE_WIDTH * 0.5);
-			m_winNumSpriteRect[static_cast<int>(ePLAYER_ID::PLAYER_2)][m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)] - 1].right = static_cast<LONG>(WIN_NUM_SPRITE_WIDTH);
-		}
-	}
-
-	//頭上の画像のY座標更新
-	//プレイヤー1用
-	switch (CharacterFactory::m_player1Chara)
-	{
-		//キャラクター１
-		case eCHARACTER_ID::CHARACTER_1:
-		{
-			m_overHeadSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)].y =
-				((m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().y - 0.5f)*-1) * 260.0f;
-			break;
-		}
-		//キャラクター２
-		case eCHARACTER_ID::CHARACTER_2:
-		{
-			m_overHeadSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)].y =
-				((m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().y - 1.5f)*-1) * 260.0f;
-			break;
-		}
-		//キャラクター３
-		case eCHARACTER_ID::CHARACTER_3:
-		{
-			m_overHeadSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)].y =
-				((m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().y - 2.0f)*-1) * 260.0f;
-			break;
-		}
-
-		default:
-			break;
-	}
-	//プレイヤー2用
-	switch (CharacterFactory::m_player2Chara)
-	{
-		//キャラクター１
-		case eCHARACTER_ID::CHARACTER_1:
-		{
-			m_overHeadSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)].y =
-				((m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().y - 0.5f)*-1) * 260.0f;
-			break;
-		}
-		//キャラクター２
-		case eCHARACTER_ID::CHARACTER_2:
-		{
-			m_overHeadSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)].y =
-				((m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().y - 1.5f)*-1) * 260.0f;
-			break;
-		}
-		//キャラクター３
-		case eCHARACTER_ID::CHARACTER_3:
-		{
-			m_overHeadSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)].y =
-				((m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().y - 2.0f)*-1) * 260.0f;
-			break;
-		}
-
-		default:
-			break;
-	}
-
-
-	//体力バーの更新	
-	for (int i = 0; i < PLAYER_NUM; i++)
-	{
-		m_pHPBar[i]->Update(m_hpBarPos[i], m_hpBarRect[i]);
-		m_pHPBarBack[i]->Update(HP_BAR_POS[i].x - 10.0f,HP_BAR_POS[i].y - 10.0f);
-
-		m_pHPBarDanger[i]->Update(m_hpBarPos[i], m_hpBarRect[i]);
-		m_pHPBarBack[i]->Update(HP_BAR_POS[i].x - 10.0f, HP_BAR_POS[i].y - 10.0f);
-
-		m_pBoostBar[i]->Update(m_boostBarPos[i], m_boostBarRect[i]);
-		m_pBoostBack[i]->Update(BOOST_BAR_POS[i].x - 10.0f, BOOST_BAR_POS[i].y - 10.0f);
-
-		//頭上の画像の更新
-		m_overHeadSpritePos[i].x = 960.0f - 50.0f + m_pPlayer[i]->GetPos().x * 230.0f;
-		m_pOverHeadSprite[i]->Update(m_overHeadSpritePos[i]);
-
-		//勝利本数の画像の更新
-		for (int j = 0; j < WIN_NUM; j++)
-		{
-			m_pWinNumSprtie[i][j]->Update(m_winNumSpritePos[i][j], m_winNumSpriteRect[i][j]);
-		}
-
-		//足元の影のエフェクトの更新
-		m_pShadowManager[i]->Update(timer, m_pPlayer[i]->GetPos());
-
-	}
-
+	//天球をY軸で回転させる
 	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(0.001);
 	m_spaceWorld *= rotY;
 
-	//制限時間の画像の切り取り位置の設定
-	m_timeSpriteOneRect.top = 0;
-	m_timeSpriteOneRect.bottom = static_cast<LONG>(PlayScene::TIME_SPRITE_HEIGHT);
-	m_timeSpriteOneRect.left = static_cast<LONG>(PlayScene::TIME_SPRITE_WIDTH * (static_cast<int>(m_time) % 10));
-	m_timeSpriteOneRect.right = m_timeSpriteOneRect.left + static_cast<LONG>(PlayScene::TIME_SPRITE_WIDTH);
-
-	m_timeSpriteTenRect.top = 0;
-	m_timeSpriteTenRect.left = static_cast<LONG>(PlayScene::TIME_SPRITE_WIDTH * (static_cast<int>(m_time) / 10));
-	m_timeSpriteTenRect.bottom = static_cast<LONG>(PlayScene::TIME_SPRITE_HEIGHT);
-	m_timeSpriteTenRect.right = m_timeSpriteTenRect.left + static_cast<LONG>(PlayScene::TIME_SPRITE_WIDTH);
-
-	m_pTimeSpriteOne->Update(PlayScene::TIME_SPRITE_POS_X, 0.0f, m_timeSpriteOneRect);
-	m_pTimeSpriteTen->Update(PlayScene::TIME_SPRITE_POS_X - PlayScene::TIME_SPRITE_WIDTH, 0.0f, m_timeSpriteTenRect);
-
+	//UIクラスの更新
+	m_pPlaySceneUI->Update();
 
 	//シーンのステート
 	if (m_isStop == false)
@@ -845,8 +487,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 							
 							//m_pPlayer[i]->Ready(timer);
 
-							if (m_pWinSprite[i] != nullptr)
-								m_pWinSprite[i]->Update(m_winSpritePos);
 						}
 						if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() > m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
 						{
@@ -977,46 +617,17 @@ void PlayScene::Render()
 {
 	//天球の描画
 	m_space->Render(m_view, m_proj);
-	//m_sprite2D->Draw();//2dスプライトの描画
-
-	////wchar_t string[25] = {};
-
-	////if (m_pPlayer[1] != nullptr)
-	////{
-	////	//体力を文字列に変換
-	////	_itow(m_pPlayer[1]->GetHP(), string, 10);
-	////}
-	////デバッグ文字の更新
-	//DebugFont::GetInstance()->Print(0, 0, string, DirectX::Colors::Aqua);
-	//DebugFont::GetInstance()->Print(0, 0, string, DirectX::Colors::Aqua);
-
-
-	//DebugFont::GetInstance()->Draw();//デバッグ文字の描画
-
-
 
 	//床の描画
 	if(m_isResult == false)
 		m_pFloor->Draw(m_floorWorld, m_view, m_proj, DirectX::Colors::Brown);
 
-	////モデルの描画
-	//m_pFbxModel->Draw(
-	//	m_fbxModelWorld,
-	//	m_view,
-	//	m_proj
-	//);
 	for (int i = 0; i < PLAYER_NUM; i++)
 	{
 		//足元の影のエフェクトの描画
 		m_pShadowManager[i]->Render(m_view,m_proj);
 	}
 
-	//プレイヤーの描画
-	//for (int i = 0; i < PLAYER_NUM; i++)
-	//{
-	//	m_pPlayer[i]->Render(m_view, m_proj);
-
-	//}
 
 	//プレイヤー１の描画
 	if (m_isResult == false || m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)] < WIN_NUM)
@@ -1029,118 +640,8 @@ void PlayScene::Render()
 		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Render(m_view, m_proj);
 	}
 
-	//プレイヤー１の勝利画像
-	if (m_playSceneState == ePLAY_SCENE_STATE::RESULT && 
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() >
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
-	{
-		m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Draw(true);
-	}
-
-	//プレイヤー2の勝利画像
-	else if (m_playSceneState == ePLAY_SCENE_STATE::RESULT && 
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP() >
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP())
-	{
-		m_pWinSprite[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Draw(true);
-	}
-
-	//引き分け画像
-	else if (m_playSceneState == ePLAY_SCENE_STATE::RESULT &&
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() == m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
-	{
-	}
-
-	if (m_isResult == false)
-	{
-		//体力バー、ブースト容量バーの描画
-		for (int i = 0; i < PLAYER_NUM; i++)
-		{
-			//背景
-			m_pHPBarBack[i]->Draw();
-			m_pBoostBack[i]->Draw();
-
-			//本体
-			if (m_pPlayer[i]->GetHP() > m_pPlayer[i]->GetMaxHP() * 0.3f)
-				m_pHPBar[i]->Draw(false, true);
-			else m_pHPBarDanger[i]->Draw(false, true);
-
-			m_pBoostBar[i]->Draw(false, true);
-
-			//勝利本数の画像の描画
-			for (int j = 0; j < WIN_NUM; j++)
-			{
-				m_pWinNumSprtie[i][j]->Draw(false, true);
-			}
-		}
-
-		//頭上の画像の描画
-		for (int i = 0; i < PLAYER_NUM; i++)
-		{
-			//頭上の画像
-			m_pOverHeadSprite[i]->Draw(true);
-		}
-
-
-		//制限時間の画像
-		m_pTimeSpriteOne->Draw(true, true);
-		m_pTimeSpriteTen->Draw(true, true);
-
-		//カウントダウンの画像
-		if (m_playSceneState == ePLAY_SCENE_STATE::COUNT_DOWN)
-		{
-			if (m_countdownTimer <= COUNT_DOWN_TIME / 2)
-			{
-				//現在のラウンド数によって表示する画像を切り替える
-				switch (m_nowRound)
-				{
-					case PlayScene::eROUND::ROUND_1:
-					{
-						m_pRoundSprite[static_cast<int>(eROUND::ROUND_1)]->Draw(true);
-
-						break;
-					}
-					case PlayScene::eROUND::ROUND_2:
-					{
-						m_pRoundSprite[static_cast<int>(eROUND::ROUND_2)]->Draw(true);
-
-						break;
-					}
-
-					case PlayScene::eROUND::ROUND_3:
-					{
-						m_pRoundSprite[static_cast<int>(eROUND::ROUND_3)]->Draw(true);
-						break;
-					}
-
-					default:
-						break;
-				}
-
-			}
-			else
-			{
-				m_pFightSprite->Draw(true);
-			}
-		}
-	}
-	else
-	{
-		for (int i = 0; i < PLAYER_NUM; i++)
-		{
-			if (m_pWinSprite[i] != nullptr)
-				m_pWinSprite[i]->Update(m_winSpritePos.x + 600.0f,m_winSpritePos.y - 300.0f);
-		}
-
-		m_pPushSpaceResult->Update(PUSH_SPACE_RESULT_POS);
-		m_pPushSpaceResult->Draw(true);
-	}
-
-	//タイムアップの画像
-	if (m_playSceneState == ePLAY_SCENE_STATE::TIME_UP)
-	{
-		m_pTimeUpSprite->Draw(true);
-	}
+	//UIの描画
+	m_pPlaySceneUI->Render();
 
 	DirectX::SimpleMath::Matrix world = DirectX::SimpleMath::Matrix::Identity;
 
@@ -1170,10 +671,6 @@ void PlayScene::Render()
 	{
 		m_pManualCursorSpriteRight->Draw(true);
 	}
-
-	//攻撃の描画
-	//AttackManager::GetInstance()->Render(m_view, m_proj);
-
 }
 
 ///////////////////////////
@@ -1198,8 +695,6 @@ void PlayScene::Finalize()
 	m_pDebugCamera.reset();
 	m_space.reset();
 	m_sprite2D.reset();
-	m_pPushSpaceResult->Reset();
-	//
 	for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
 	{
 		m_pManualSprite[i]->Reset();
@@ -1208,24 +703,6 @@ void PlayScene::Finalize()
 
 	for (int i = 0; i < PLAYER_NUM; i++)
 	{
-		m_pHPBar[i]->Reset();
-		m_pHPBar[i].reset();
-
-		m_pHPBarDanger[i]->Reset();
-		m_pHPBarDanger[i].reset();
-
-
-		m_pHPBarBack[i]->Reset();
-		m_pHPBarBack[i].reset();
-
-		m_pWinSprite[i]->Reset();
-		m_pWinSprite[i].reset();
-
-		for (int j = 0; j < WIN_NUM; j++)
-		{
-			m_pWinNumSprtie[i][j]->Reset();
-			m_pWinNumSprtie[i][j].reset();
-		}
 
 		if (m_pPlayer[i] != nullptr)
 		{
@@ -1233,33 +710,11 @@ void PlayScene::Finalize()
 			m_pPlayer[i] = nullptr;
 
 		}
-
-		m_pOverHeadSprite[i]->Reset();
-		m_pOverHeadSprite[i].reset();
 		//足元の影のエフェクトの終了処理
 		m_pShadowManager[i]->Finalize();
 
 	}
 
-	for (int i = 0; i < static_cast<int>(eROUND::ROUND_NUM); i++)
-	{
-		m_pRoundSprite[i]->Reset();
-		m_pRoundSprite[i].reset();
-	}
-	m_pFightSprite->Reset();
-	m_pFightSprite.reset();
-
-	m_pTimeUpSprite->Reset();
-	m_pTimeUpSprite.reset();
-
-	m_pDrawSprite->Reset();
-	m_pDrawSprite.reset();
-
-	m_pTimeSpriteOne->Reset();
-	m_pTimeSpriteOne.reset();
-
-	m_pTimeSpriteTen->Reset();
-	m_pTimeSpriteTen.reset();
 
 	m_pManualCursorSpriteLeft->Reset();
 	m_pManualCursorSpriteLeft.reset();
@@ -1279,6 +734,10 @@ void PlayScene::Finalize()
 	//m_pFbxModel = nullptr;
 	ADX2::GetInstance().Stop(soundID);
 
+	//UIクラスの終了処理
+	m_pPlaySceneUI->Finalize();
+	m_pPlaySceneUI.reset();
+
 }
 
 ///////////////////////////
@@ -1288,36 +747,36 @@ void PlayScene::Finalize()
 //////////////////////////
 void PlayScene::Reset()
 {
-	//プレイヤーの座標等のリセット
-	for (int i = 0; i < PLAYER_NUM; i++)
+	//各プレイヤーのリセット
+	for (int i = 0; i < PLAYER_NUM;i++)
 	{
 		m_pPlayer[i]->Reset();
-
-		m_hpBarPos[i] = HP_BAR_POS[i];
-
-		m_boostBarPos[i] = BOOST_BAR_POS[i];
 	}
+
 
 	//攻撃マネージャーのリセット
 	for (int i = 0; i < AttackManager::ATTACK_NUM; i++)
 	{
 		AttackManager::GetInstance()->Reset(i);
 	}
+	//フェードイン状態にする
 	m_sceneState = eSCENE_STATE::FADE_IN;
+	//プレイシーンの状態をカウントダウンにする
 	m_playSceneState = ePLAY_SCENE_STATE::COUNT_DOWN;
-
+	//フェードのタイマーを設定
 	m_fadeTimer = 1.0f;
+	//カウントダウンのタイマーを初期化
 	m_countdownTimer = 0.0f;
-
+	//制限時間を最大値に設定
 	m_time = PlayScene::TIME_MAX;
 
 	//カメラの注視点の初期化
 	m_targetPos = DirectX::SimpleMath::Vector3::Zero;
 	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
 
-	//BGMの再生
-	//soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM);
 
+	//UIクラスのリセット
+	m_pPlaySceneUI->Reset();
 }
 
 
@@ -1340,27 +799,6 @@ void PlayScene::Manual()
 		ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
 
 	}
-	//
-	////ESCキーで操作説明表示
-	//if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == false)
-	//{
-	//	m_isManualDisplay = true;
-	//	//下降フラグを立てる
-	//	m_isManualDown = true;
-	//}
-
-
-	////操作説明表示中にスペースキー入力でキャラクターセレクトに戻る
-	//if (m_isManualDisplay == true)
-	//{
-	//	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Space))
-	//	{
-	//		SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
-	//		//SE再生
-	//		ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
-	//		ADX2::GetInstance().Stop(soundID);
-	//	}
-	//}
 
 	//左右入力で移動フラグを立てる
 	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Left) && 

@@ -91,7 +91,10 @@ void Character2StateManager::Initialize(CharacterBase * pCharacterBase)
 //////////////////////////
 void Character2StateManager::Update(const eCHARACTER_STATE& charaState)
 {
-	if (charaState != eCHARACTER_STATE::GUARD)
+	//ステートごとに更新をかける
+	if (charaState != eCHARACTER_STATE::GUARD &&
+		charaState != eCHARACTER_STATE::LOSE &&
+		charaState != eCHARACTER_STATE::WIN)
 		m_pCharacterStateArray[static_cast<int>(charaState)]->Update();
 }
 

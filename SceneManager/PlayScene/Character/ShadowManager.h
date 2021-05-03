@@ -42,7 +42,7 @@ public:
 	~ShadowManager();
 
 	//‰Šú‰»
-	void Initialize(DX::DeviceResources* deviceResources, int count, float life, DirectX::SimpleMath::Vector3 pos);
+	void Initialize(int count, float life, DirectX::SimpleMath::Vector3 pos);
 	//XV
 	void Update(DX::StepTimer timer,DirectX::SimpleMath::Vector3 pos);
 	//•`‰æ

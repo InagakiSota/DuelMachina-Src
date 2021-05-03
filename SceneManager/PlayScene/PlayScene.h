@@ -21,6 +21,7 @@ class Fbx;
 class CharacterBase;
 class DebugCamera;
 class AttackManager;
+class PlaySceneUI;
 
 class FbxModel;
 class ShadowManager;
@@ -33,32 +34,6 @@ class PlayScene :
 //関数
 public:
 
-	//コンストラクタ
-	PlayScene();
-	//デストラクタ
-	~PlayScene();			
-	//初期化
-	void Initialize() override;	
-	//更新
-	void Update(DX::StepTimer const& timer) override;			
-	//描画
-	void Render() override;		
-	//終了処理
-	void Finalize() override;
-
-private:
-	//リセット
-	void Reset();
-	//操作説明
-	void Manual();
-	//メニュー
-	void Menu();
-	//リザルト
-	void Result(DX::StepTimer const& timer);
-
-////////////////////////////////////
-//変数・定数
-private:
 	//プレイシーンのステート
 	enum class ePLAY_SCENE_STATE
 	{
@@ -95,50 +70,80 @@ private:
 		SPRITE_NUM,		//画像枚数
 	};
 
+
+	//コンストラクタ
+	PlayScene();
+	//デストラクタ
+	~PlayScene();			
+	//初期化
+	void Initialize() override;	
+	//更新
+	void Update(DX::StepTimer const& timer) override;			
+	//描画
+	void Render() override;		
+	//終了処理
+	void Finalize() override;
+
+	//プレイヤーのポインタのゲッター
+	CharacterBase* GetPlayer(const int& index)const
+	{
+		return m_pPlayer[index];
+	}
+
+	//プレイヤーの勝利本数のゲッター
+	int GetPlayerWinNum(const int& index)	const
+	{
+		return m_playerWinNum[index];
+	}
+
+	//時間のゲッター
+	float GetTime() const
+	{
+		return m_time;
+	}
+	//プレイシーンの状態のゲッター
+	PlayScene::ePLAY_SCENE_STATE GetPlaySceneState()const
+	{
+		return m_playSceneState;
+	}
+	//リザルト状態かどうかのフラグのゲッター
+	bool GetIsResult()const
+	{
+		return m_isResult;
+	}
+	//カウントダウンのタイマーのゲッター
+	float GetCountDownTimer()const
+	{
+		return m_countdownTimer;
+	}
+	//現在のラウンドのゲッター
+	eROUND GetNowRound()const
+	{
+		return m_nowRound;
+	}
+
+private:
+	//リセット
+	void Reset();
+	//操作説明
+	void Manual();
+	//メニュー
+	void Menu();
+	//リザルト
+	void Result(DX::StepTimer const& timer);
+
+////////////////////////////////////
+//変数・定数・列挙体
+
+
+private:
 	//プレイシーンのステート変数
 	ePLAY_SCENE_STATE m_playSceneState;
 
 	//プレイヤーの数
 	static const int PLAYER_NUM = 2;		
-	//体力バーの横幅
-	static const float HP_BAR_WIDTH;			
-	//体力バーの高さ
-	static const float HP_BAR_HEIGHT;
-	//体力バーのマージン
-	static const float HP_BAR_MARGIN;
-
-	//ブースト容量バーの横幅
-	static const float BOOST_BAR_WIDTH;
-	//ブースト容量バーの高さ
-	static const float BOOST_BAR_HEIGHT;
-
-
-	//カウントダウンの時間
-	static const float COUNT_DOWN_TIME;			
-	//カウントダウン画像の座標
-	static const DirectX::SimpleMath::Vector2 COUNT_DOWN_SPRITE_POS;
 	//勝利するための取得本数
 	static const int WIN_NUM = 2;
-	//制限時間の最大値
-	static const float TIME_MAX;
-	//タイムアップシーンの時間
-	static const float TIME_UP_TIME;
-	//ラウンド切り替えの時間
-	static const float ROUND_CHANGE_TIME;
-	//勝利本数の画像の横幅
-	static const float WIN_NUM_SPRITE_WIDTH;
-	//勝利本数の画像の高さ
-	static const float WIN_NUM_SPRITE_HEIGHT;
-	//制限時間の画像の横幅
-	static const float TIME_SPRITE_WIDTH;
-	//制限時間の画像の高さ
-	static const float TIME_SPRITE_HEIGHT;
-	//制限時間の画像のX座標
-	static const float TIME_SPRITE_POS_X;
-	//体力バーの初期座標
-	static const DirectX::SimpleMath::Vector2 HP_BAR_POS[PLAYER_NUM];
-	//ブースト容量バーの初期座標
-	static const DirectX::SimpleMath::Vector2 BOOST_BAR_POS[PLAYER_NUM];
 
 	DirectX::SimpleMath::Matrix m_spaceWorld;	//天球のワールド行列
 
@@ -146,6 +151,14 @@ private:
 	static const float MANUAL_SPRITE_WIDTH;
 	//操作説明の画像の高さ
 	static const float MANUAL_SPRITE_HEIGHT;
+	//制限時間の最大値
+	static const float TIME_MAX;
+	//タイムアップシーンの時間
+	static const float TIME_UP_TIME;
+	//ラウンド切り替えの時間
+	static const float ROUND_CHANGE_TIME;
+	//カウントダウンの時間
+	static const float COUNT_DOWN_TIME;
 
 	//std::unique_ptr<DirectX::CommonStates>m_states;
 	//std::unique_ptr<DirectX::IEffectFactory>m_fxFactory;
@@ -159,61 +172,6 @@ private:
 	//スプライト								
 	std::unique_ptr<Sprite2D> m_sprite2D;		
 
-	//体力バー
-	std::unique_ptr<Sprite2D> m_pHPBar[PLAYER_NUM];
-	//体力バー(体力低)	
-	std::unique_ptr <Sprite2D> m_pHPBarDanger[PLAYER_NUM];
-	//体力バーの背景
-	std::unique_ptr<Sprite2D> m_pHPBarBack[PLAYER_NUM];
-
-	//体力バーの座標
-	DirectX::SimpleMath::Vector2 m_hpBarPos[PLAYER_NUM];
-	//体力バーの切り取り位置
-	RECT m_hpBarRect[PLAYER_NUM];
-
-	//ブースト容量バー
-	std::unique_ptr<Sprite2D> m_pBoostBar[PLAYER_NUM];
-	//ブースト容量バー(オーバーヒート)
-	std::unique_ptr<Sprite2D> m_pBoostOverHeatBar[PLAYER_NUM];
-	//ブースト容量バーの背景
-	std::unique_ptr<Sprite2D> m_pBoostBack[PLAYER_NUM];
-	//ブースト容量バーの座標
-	DirectX::SimpleMath::Vector2 m_boostBarPos[PLAYER_NUM];
-	//ブースト容量バーの切り取り位置
-	RECT m_boostBarRect[PLAYER_NUM];
-
-	//勝利画像
-	std::unique_ptr<Sprite2D> m_pWinSprite[PLAYER_NUM];
-	//勝利画像の座標
-	DirectX::SimpleMath::Vector2 m_winSpritePos;
-
-	//ラウンド数の画像
-	std::unique_ptr<Sprite2D> m_pRoundSprite[static_cast<int>(eROUND::ROUND_NUM)];
-	//FIGHTの画像
-	std::unique_ptr<Sprite2D> m_pFightSprite;
-	//タイムアップの画像
-	std::unique_ptr<Sprite2D> m_pTimeUpSprite;
-	//引き分け時の画像
-	std::unique_ptr<Sprite2D> m_pDrawSprite;
-	//制限時間の画像(一の位)
-	std::unique_ptr<Sprite2D> m_pTimeSpriteOne;
-	//制限時間の画像(十の位)
-	std::unique_ptr<Sprite2D> m_pTimeSpriteTen;
-
-	//勝利本数の画像
-	std::unique_ptr<Sprite2D> m_pWinNumSprtie[PLAYER_NUM][WIN_NUM];
-	//勝利本数の画像の切り取り位置
-	RECT m_winNumSpriteRect[PLAYER_NUM][WIN_NUM];
-	//勝利本数の画像の座標
-	DirectX::SimpleMath::Vector2 m_winNumSpritePos[PLAYER_NUM][WIN_NUM];
-	//プレイヤーの頭上のカーソル
-	std::unique_ptr<Sprite2D> m_pOverHeadSprite[PLAYER_NUM];
-	//プレイヤーの頭上のカーソルの座標
-	DirectX::SimpleMath::Vector2 m_overHeadSpritePos[PLAYER_NUM];
-	//制限時間の画像の切り取り位置　一の位
-	RECT m_timeSpriteOneRect;
-	//制限時間の画像の切り取り位置　十の位
-	RECT m_timeSpriteTenRect;
 
 	//fbx
 	//std::unique_ptr<Fbx> m_pFbx;
@@ -304,9 +262,8 @@ private:
 	float m_totalSeconds;
 	//リザルトに遷移したフラグ
 	bool m_isResult;
-	//リザルトのpushSpaceの画像
-	std::unique_ptr<Sprite2D> m_pPushSpaceResult;
-	//リザルトのpushSpaceの画像の座標
-	static const DirectX::SimpleMath::Vector2 PUSH_SPACE_RESULT_POS;
+
+	//UIクラスのポインタ
+	std::unique_ptr<PlaySceneUI> m_pPlaySceneUI;
 };
 

@@ -156,11 +156,12 @@ public:
 	//アニメーションの切り替え
 	virtual void ChangeAnimation(const int& animationStack) = 0;
 
-
-protected:
+	//攻撃の種類の数
 	static const int ATTACK_NUM = 32;
 	//重力
-	static const float GRAVITY;	
+	static const float GRAVITY;
+
+protected:
 
 	//デバイスリソースのポインタ
 	DX::DeviceResources* m_pDeviceResources;		
