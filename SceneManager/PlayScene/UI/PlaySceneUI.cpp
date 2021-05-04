@@ -101,21 +101,40 @@ void PlaySceneUI::Initialize()
 
 	for (int i = 0;i < PLAYER_NUM;i++)
 	{
-		//体力バーの切り取り位置、座標の設定
+		//体力バーの切り取り位置設定
 		m_hpBarRect[i].top = 0;
 		m_hpBarRect[i].bottom = static_cast<LONG>(HP_BAR_HEIGHT);
 		m_hpBarRect[i].left = 0;
 		m_hpBarRect[i].right = static_cast<LONG>(HP_BAR_WIDTH);
-
+		//体力バーの座標設定
 		m_hpBarPos[i] = HP_BAR_POS[i];
 
-		//ブースト容量バーの切り取り位置、座標の設定
+		//ブースト容量バーの切り取り位置設定
 		m_boostBarRect[i].top = 0;
 		m_boostBarRect[i].bottom = static_cast<LONG>(BOOST_BAR_HEIGHT);
 		m_boostBarRect[i].left = 0;
 		m_boostBarRect[i].right = static_cast<LONG>(BOOST_BAR_WIDTH);
-
+		//ブースト容量バーの座標設定
 		m_boostBarPos[i] = BOOST_BAR_POS[i];
+
+		for (int j = 0; j < WIN_NUM; j++)
+		{
+			//ラウンド取得本数の画像の切り取り位置設定
+			m_winNumSpriteRect[i][j].top = 0;
+			m_winNumSpriteRect[i][j].bottom = static_cast<LONG>(WIN_NUM_SPRITE_HEIGHT);
+			m_winNumSpriteRect[i][j].left = 0;
+			m_winNumSpriteRect[i][j].right = static_cast<LONG>(WIN_NUM_SPRITE_WIDTH * 0.5);
+
+		}
+
+		//ラウンド取得本数の画像の座標設定
+		//プレイヤー1用
+		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)][i].y = 170.0f;
+		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_1)][i].x = 70.0f + ((WIN_NUM_SPRITE_WIDTH * 0.5f +10.0f) * i);
+		//プレイヤー2用
+		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)][i].y = 170.0f;
+		m_winNumSpritePos[static_cast<int>(ePLAYER_ID::PLAYER_2)][i].x = 1920.0f - ((WIN_NUM_SPRITE_WIDTH * 0.5f + 10.0f) * (i + 1)) - 70.0f;
+
 
 	}
 
@@ -164,7 +183,7 @@ void PlaySceneUI::Update()
 				m_pPlayScene->GetPlayer(static_cast<int>(ePLAYER_ID::PLAYER_2))->GetBoostCap())));
 
 	//勝利本数の画像の切り取り位置の更新
-//プレイヤー１
+	//プレイヤー１
 	for (int i = 0; i < m_pPlayScene->GetPlayerWinNum(static_cast<int>(ePLAYER_ID::PLAYER_1)); i++)
 	{
 		if (m_pPlayScene->GetPlayerWinNum(static_cast<int>(ePLAYER_ID::PLAYER_1)) > 0)
@@ -508,6 +527,7 @@ void PlaySceneUI::Load()
 		{
 			m_pWinNumSprtie[i][j] = std::make_unique<Sprite2D>();
 			m_pWinNumSprtie[i][j]->Create(L"Resources/Textures/winNum.png");
+
 
 		}
 

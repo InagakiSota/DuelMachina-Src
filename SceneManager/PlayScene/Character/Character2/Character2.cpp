@@ -24,81 +24,19 @@
 
 //コンストラクタ
 Character2::Character2(ePLAYER_ID playerID)
+	:	//基底クラスのコンストラクタ
+	CharacterBase::CharacterBase(playerID)
 {
-	m_jumpFlag = false;
-	m_landingFlag = false;
-	m_legBoxWorld.Identity;
-	m_legCollBox = {};
-	m_pDeviceResources = nullptr;
-	m_pLegBox = nullptr;
-	m_pModel = nullptr;
-	m_pos.Zero;
-	m_vel.Zero;
-	m_frontVector.Zero;
-	m_pBodyBox = nullptr;
-	m_bodyBoxWorld.Identity;
-	m_bodyCollBox = {};
-	m_startPos.Zero;
-	m_pKeyTracker = nullptr;
-	m_playerID = playerID;
-	m_isHitEnemyBody = false;
-	m_posBuf.Zero;
-
-	m_pAttack = nullptr;
-
-	m_pAttackManager = nullptr;
-	m_enemyPos.Zero;
-	m_pHeadBox = nullptr;
-	m_headCollBox = {};
-	m_headBoxWorld.Identity;
-	m_HP = 0;
-	m_HPBuffer = 0;
-	m_charaState = eCHARACTER_STATE::NONE;
-	m_damageTimer = 0.0f;
-	m_angleY = 0.0f;
-	m_aiAttackTimer = 0.0f;
-	m_aiStateTiemer = 0.0f;
-	m_aiState = 0;
-	m_boostCap = 0;
-
-	m_pFbxModel = nullptr;
-
-	m_pStateManager = nullptr;
-	m_pCharacterAttackManager = nullptr;
-	m_attackFront = DirectX::SimpleMath::Vector3::Zero;
-	m_isAttacking = false;
-
-	m_pEnemy = nullptr;
+	//自身のキャラクターのIDを設定
+	SetCharacterID(eCHARACTER_ID::CHARACTER_2);
 }
 
 //デストラクタ
 Character2::~Character2()
 {
-	//リソースの解放
-	if (m_pBodyBox != nullptr)
-	{
-		m_pBodyBox.reset();
-	}
+	//基底クラスのデストラクタ
+	CharacterBase::~CharacterBase();
 
-	if (m_pLegBox != nullptr)
-	{
-		m_pLegBox.reset();
-	}
-
-	if (m_pDeviceResources != nullptr)
-	{
-		m_pDeviceResources = nullptr;
-	}
-
-	if (m_pKeyTracker != nullptr)
-	{
-		m_pKeyTracker.reset();
-	}
-
-	if (m_pModel != nullptr)
-	{
-		m_pModel.reset();
-	}
 }
 
 ///////////////////////////
@@ -108,89 +46,41 @@ Character2::~Character2()
 //////////////////////////
 void Character2::Initialize()
 {
-	m_pDeviceResources = gdi->GetDeviceResources();
-
-	////CMOを読み込んでモデルを作成する
-	//m_pModel = std::make_unique<ModelObject>();
-	//m_pModel->Create(m_pDeviceResources, L"Resources/Models/robot2maya7.cmo");
-
-	//FBXを読み込んでモデルを作成
-	//待機
-	//m_pFbxModel = new FbxModel();
-	//m_pFbxModel->Load(
-	//	window,
-	//	pDeviceResources->GetD3DDevice(),
-	//	pDeviceResources->GetD3DDeviceContext(),
-	//	pDeviceResources->GetRenderTargetView(),
-	//	"Resources/Models/robot2/robot2animation.fbx",
-	//	true
-	//);
+	//基底クラスの初期化
+	CharacterBase::Initialize();
 
 	m_pFbxModel = FbxResourceManager::GetInstance()->GetModel(eCHARACTER_ID::CHARACTER_2);
-
-	//m_pShieldModel = new FbxModel();
-	//m_pShieldModel->Load(
-	//	window,
-	//	pDeviceResources->GetD3DDevice(),
-	//	pDeviceResources->GetD3DDeviceContext(),
-	//	pDeviceResources->GetRenderTargetView(),
-	//	"Resources/Models/Shield.fbx",
-	//	false
-	//);
-
-	m_pShieldModel = FbxResourceManager::GetInstance()->GetShieldModel();
-
-	m_shieldWorld = DirectX::SimpleMath::Matrix::Identity;
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(DirectX::SimpleMath::Vector3::Zero);
-	m_shieldWorld = pos;
-
 
 	//ステータスの読み込み
 	Character2Params::GetInstance()->LoadStatusData();
 
-	//初期座標の設定	
-	m_pos = m_startPos;
 
 	//足元の当たり判定の箱の読み込み
 	m_legCollBox.size_h = Character2Params::LEG_COLL_SIZE;
 	m_legCollBox.pos = DirectX::SimpleMath::Vector3(m_pos.x, m_pos.y - 1.7f, m_pos.z);
-	m_pLegBox = DirectX::GeometricPrimitive::CreateBox(m_pDeviceResources->GetD3DDeviceContext(), m_legCollBox.size_h * 2);
+	m_pLegBox = DirectX::GeometricPrimitive::CreateBox(gdi->GetDeviceResources()->GetD3DDeviceContext(), m_legCollBox.size_h * 2);
 	m_legBoxWorld.Identity;
 
 	//体の当たり判定の箱の読み込み
 	m_bodyCollBox.size_h = Character2Params::BODY_COLL_SIZE_NORMAL;
 	m_bodyCollBox.pos = DirectX::SimpleMath::Vector3(m_pos.x, m_pos.y - 0.9f, m_pos.z);
-	m_pBodyBox = DirectX::GeometricPrimitive::CreateBox(m_pDeviceResources->GetD3DDeviceContext(), m_bodyCollBox.size_h * 2);
-	m_pBodySquatBox = DirectX::GeometricPrimitive::CreateBox(m_pDeviceResources->GetD3DDeviceContext(), Character2Params::BODY_COLL_SIZE_SQUAT * 2);
+	m_pBodyBox = DirectX::GeometricPrimitive::CreateBox(gdi->GetDeviceResources()->GetD3DDeviceContext(), m_bodyCollBox.size_h * 2);
+	m_pBodySquatBox = DirectX::GeometricPrimitive::CreateBox(gdi->GetDeviceResources()->GetD3DDeviceContext(), Character2Params::BODY_COLL_SIZE_SQUAT * 2);
 	m_bodyBoxWorld.Identity;
 
 	//頭の当たり判定の箱の読み込み
 	m_headCollBox.size_h = Character2Params::HEAD_COLL_SIZE;
 	m_headCollBox.pos = DirectX::SimpleMath::Vector3(m_pos.x, m_pos.y, m_pos.z);
-	m_pHeadBox = DirectX::GeometricPrimitive::CreateBox(m_pDeviceResources->GetD3DDeviceContext(), m_headCollBox.size_h * 2);
+	m_pHeadBox = DirectX::GeometricPrimitive::CreateBox(gdi->GetDeviceResources()->GetD3DDeviceContext(), m_headCollBox.size_h * 2);
 	m_headBoxWorld.Identity;
-
-	//キートラッカーの読み込み
-	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
-
-	////歩きの移動量の設定
-	//m_walkForce = 0.05f;
-	////ジャンプの移動量の設定
-	//m_jumpForce = 0.14f;
 
 	//前方向の設定
 	m_frontVector = Character2Params::FRONT_VECTOR;
 
 	//体力の設定
-	m_HP = Character2Params::GetInstance()->MAX_HP;
-	m_HPBuffer = m_HP;
+	m_hp = m_hpMax = Character2Params::GetInstance()->MAX_HP;
+	m_hpBuffer = m_hp;
 
-	//体の色の設定
-	m_bodyColor = DirectX::SimpleMath::Vector4(0.0f, 0.0f, 1.0f, 0.4f);
-
-
-	//キャラのステート初期化
-	m_charaState = eCHARACTER_STATE::WAIT;
 
 	if (m_playerID == ePLAYER_ID::PLAYER_1)m_angleY = Character2Params::ANGLE_Y;
 	if (m_playerID == ePLAYER_ID::PLAYER_2)m_angleY = -180.0f + Character2Params::ANGLE_Y;
@@ -208,32 +98,6 @@ void Character2::Initialize()
 	//ブースト容量の初期化
 	m_boostCap = Character2Params::GetInstance()->BOOST_CAP_MAX;
 
-	//モデルの更新
-	//m_pModel->Update(m_world);
-
-	//攻撃フラグの初期化
-	for (int i = 0; i < static_cast<int>(eATTACK_TYPE::ATTACK_TYPE_NUM); i++)
-	{
-		m_isAttackInput[i] = false;
-		m_isAttackUse[i] = false;
-	}
-
-	//ステートマネージャーの読み込み、初期化
-	m_pStateManager = std::make_unique<Character2StateManager>();
-	m_pStateManager->Initialize(this);
-	
-	//キャラクターの攻撃マネージャーの読み込み、初期化
-	m_pCharacterAttackManager = std::make_unique<Character2AttackManager>();
-	m_pCharacterAttackManager->Initialize(this,m_pDeviceResources);
-
-	//ヒットエフェクトの読み込み、作成
-	m_pHitEffectManager = std::make_unique<HitEffectManager>();
-	m_pHitEffectManager->Create(m_pDeviceResources, 50);
-
-	//ブーストエフェクトマネージャーの読み込み、作成
-	m_pBoostEffectManager = std::make_unique<BoostEffectManager>();
-	m_pBoostEffectManager->Initialize(m_pDeviceResources, 1, 1, DirectX::SimpleMath::Vector3::Zero);
-
 }
 
 ///////////////////////////
@@ -249,13 +113,13 @@ void Character2::Update(DX::StepTimer const& timer)
 	m_pKeyTracker->Update(keyState);
 
 	//ステートの管理
-	if (m_playerID == ePLAYER_ID::PLAYER_1 && m_HP > 0)
+	if (m_playerID == ePLAYER_ID::PLAYER_1 && m_hp > 0)
 	{
 		StateManager();
 	}
 
 	//プレイヤー２ならAI操作
-	if (m_playerID == ePLAYER_ID::PLAYER_2 && m_HP > 0)
+	if (m_playerID == ePLAYER_ID::PLAYER_2 && m_hp > 0)
 	{
 		AI();
 	}
@@ -266,7 +130,10 @@ void Character2::Update(DX::StepTimer const& timer)
 		m_vel.y += GRAVITY;
 
 	}
-	else if (m_landingFlag == true)m_vel.y = 0.0f;
+	else if (m_landingFlag == true)
+	{
+		m_vel.y = 0.0f;
+	}
 
 	//移動制限
 	if (m_pos.x > -MOVE_LIMIT_X || m_pos.x < MOVE_LIMIT_X)m_vel.x = 0.0f;
@@ -296,7 +163,7 @@ void Character2::Update(DX::StepTimer const& timer)
 	m_pStateManager->Update(m_charaState);
 
 	//攻撃
-	if (m_HP > 0)
+	if (m_hp > 0)
 	{
 		Attack();
 	}
@@ -335,7 +202,7 @@ void Character2::Update(DX::StepTimer const& timer)
 	m_pos += m_vel;
 
 	//体力の更新
-	if (m_HP > m_HPBuffer)m_HP--;
+	if (m_hp > m_hpBuffer)m_hp--;
 
 
 	//Matrix rotZ = Matrix::CreateRotationZ(XMConvertToRadians(30));
@@ -556,9 +423,6 @@ void Character2::Finalize()
 	//ジオメトリプリミティブの解放
 	m_pLegBox.reset();
 
-	//delete m_pDeviceResources;
-	m_pDeviceResources = nullptr;
-
 	//ステートマネージャーの終了処理
 	m_pStateManager->Finalize();
 	m_pStateManager.reset();
@@ -691,8 +555,8 @@ void Character2::HitAttack()
 			if (m_charaState != eCHARACTER_STATE::GUARD)
 			{
 				//体力を減らす
-				//m_HP -= m_pAttackManager->GetAttackStruct(i)->power;
-				m_HPBuffer = m_HP - m_pAttackManager->GetAttackStruct(i)->power;
+				//m_hp -= m_pAttackManager->GetAttackStruct(i)->power;
+				m_hpBuffer = m_hp - m_pAttackManager->GetAttackStruct(i)->power;
 
 				//やられ状態に切り替える
 				m_charaState = eCHARACTER_STATE::DAMAGE;
@@ -730,8 +594,8 @@ void Character2::HitAttack()
 			else if (m_charaState == eCHARACTER_STATE::GUARD)
 			{
 				//体力を減らす
-				//m_HP -= m_pAttackManager->GetAttackStruct(i)->power / m_pAttackManager->GetAttackStruct(i)->power;
-				m_HPBuffer = m_HP - (m_pAttackManager->GetAttackStruct(i)->power / m_pAttackManager->GetAttackStruct(i)->power);
+				//m_hp -= m_pAttackManager->GetAttackStruct(i)->power / m_pAttackManager->GetAttackStruct(i)->power;
+				m_hpBuffer = m_hp - (m_pAttackManager->GetAttackStruct(i)->power / m_pAttackManager->GetAttackStruct(i)->power);
 				//ガード状態に切り替える
 				//m_charaState = eCHARACTER_STATE::GUARD;
 				//当たったフラグを立てる
@@ -759,7 +623,7 @@ void Character2::Ready(DX::StepTimer const& timer)
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
 	m_pKeyTracker->Update(keyState);
 	//ステートの管理
-	if (m_HP > 0)StateManager();
+	if (m_hp > 0)StateManager();
 
 	//重力落下
 	if (m_landingFlag == false)
@@ -960,8 +824,8 @@ void Character2::Reset()
 	m_pos = m_startPos;
 	m_posBuf = m_pos;
 	//体力の設定
-	m_HP = Character2Params::GetInstance()->MAX_HP;
-	m_HPBuffer = m_HP;
+	m_hp = m_hpMax;
+	m_hpBuffer = m_hp;
 	//ステートの設定
 	m_charaState = eCHARACTER_STATE::WAIT;
 

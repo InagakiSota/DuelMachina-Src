@@ -210,13 +210,13 @@ public:
 	//�̗͂̎擾
 	int GetHP() override
 	{
-		return m_HP;
+		return m_hp;
 	}
 
 	//�̗͂̐ݒ�
 	void SetHP(const int& hp) override
 	{
-		m_HP = hp;
+		m_hp = hp;
 	}
 
 	//�ő�̗͂̎擾

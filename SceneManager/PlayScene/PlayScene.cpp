@@ -706,7 +706,7 @@ void PlayScene::Finalize()
 
 		if (m_pPlayer[i] != nullptr)
 		{
-			delete m_pPlayer[i];
+			//delete m_pPlayer[i];
 			m_pPlayer[i] = nullptr;
 
 		}
