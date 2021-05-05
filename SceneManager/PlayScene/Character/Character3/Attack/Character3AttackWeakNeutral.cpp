@@ -8,6 +8,7 @@
 #include "Character3AttackWeakNeutral.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
+#include "Src/Cgdi.h"
 
 //攻撃力
 const int Character3AttackWeakNeutral::POWER = 5;
@@ -48,10 +49,10 @@ Character3AttackWeakNeutral::~Character3AttackWeakNeutral()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:なし
 //////////////////////////
-void Character3AttackWeakNeutral::Initialize(CharacterBase * pCharacter, DX::DeviceResources * pDeviceResources)
+void Character3AttackWeakNeutral::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 }
 
 ///////////////////////////

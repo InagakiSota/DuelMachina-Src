@@ -19,7 +19,7 @@ public:
 	~Character2AttackManager();
 
 	//‰Šú‰»
-	void Initialize(CharacterBase* pCharacter, DX::DeviceResources* pDeviceResources) override;
+	void Initialize(CharacterBase* pCharacter) override;
 	//XV
 	void Update() override;
 	//•`‰æ

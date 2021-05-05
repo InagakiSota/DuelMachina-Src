@@ -8,7 +8,7 @@
 #include "Character3AttackMiddleNeutral.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
-
+#include "Src/Cgdi.h"
 //攻撃力
 const int Character3AttackMiddleNeutral::POWER = 5;
 //X座標
@@ -52,10 +52,10 @@ Character3AttackMiddleNeutral::~Character3AttackMiddleNeutral()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:なし
 //////////////////////////
-void Character3AttackMiddleNeutral::Initialize(CharacterBase * pCharacter, DX::DeviceResources * pDeviceResources)
+void Character3AttackMiddleNeutral::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 
 	for (int i = 0; i < BALLISTIC_NUM;i++)
 	{

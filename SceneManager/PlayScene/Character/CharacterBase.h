@@ -308,6 +308,12 @@ public:
 	 {
 		 return m_boostCapMax;
 	 }
+	 //最大ブースト容量の設定
+	 void SetMaxBoostCap(const int& boostCapMax) override
+	 {
+		 m_boostCapMax = boostCapMax;
+	 }
+
 	//攻撃構造体のポインタの取得
 	 AttackStruct* GetAttack() override
 	 {
@@ -409,9 +415,12 @@ public:
 	 //CPUの挙動
 	 void AI();
 
+	 //当たり判定の更新
+	 void CollisionUpdate() {}
 
 
-protected:
+
+private:
 	//ワールド行列
 	DirectX::SimpleMath::Matrix m_world;						
 	//座標

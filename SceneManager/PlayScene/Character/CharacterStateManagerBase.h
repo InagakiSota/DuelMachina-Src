@@ -7,20 +7,21 @@
 #pragma once
 #include "CharacterState.h"
 #include "CharacterStateBase.h"
+#include "ICharacterStateManager.h"
 
 class CharacterBase;
 
-class CharacterStateManagerBase
+class CharacterStateManagerBase : public ICharacterStateManager
 {
 public:
 	~CharacterStateManagerBase() {};
 
 	//初期化
-	virtual void Initialize(CharacterBase* pCharacterBase) = 0;
+	void Initialize(CharacterBase* pCharacterBase) override {}
 	//更新
-	virtual void Update(const eCHARACTER_STATE& charaState) = 0;
+	void Update(const eCHARACTER_STATE& charaState) override {}
 	//終了処理
-	virtual void Finalize() = 0;
+	void Finalize() override {}
 
 protected:
 	//キャラクターの状態のポインタの配列

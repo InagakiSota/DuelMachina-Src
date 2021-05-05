@@ -8,6 +8,7 @@
 #include "Character2AttackWeakSide.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
+#include "Src/Cgdi.h"
 
 //攻撃力
 const int Character2AttackWeakSide::POWER = 5;
@@ -49,10 +50,10 @@ Character2AttackWeakSide::~Character2AttackWeakSide()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:なし
 //////////////////////////
-void Character2AttackWeakSide::Initialize(CharacterBase * pCharacter, DX::DeviceResources * pDeviceResources)
+void Character2AttackWeakSide::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 }
 
 ///////////////////////////

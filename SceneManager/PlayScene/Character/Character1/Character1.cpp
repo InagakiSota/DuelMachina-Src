@@ -60,18 +60,23 @@ void Character1::Initialize()
 	Character1Params::GetInstance()->LoadStatusData();
 
 
-	//足元の当たり判定の箱の読み込み
-	GetLegCollBox().size_h = Character1Params::LEG_COLL_SIZE;
-	GetLegCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 1.0f, GetPos().z);
+	//足元の当たり判定の箱の設定
+	Collision::BoxCollision legCollBox = GetLegCollBox();
+	legCollBox.size_h = Character1Params::LEG_COLL_SIZE;
+	legCollBox.pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 1.0f, GetPos().z);
+	SetLegCollBox(legCollBox);
 
 	//体の当たり判定の箱の読み込み
-	GetBodyCollBox().size_h = Character1Params::BODY_COLL_SIZE_NORMAL;
-	GetBodyCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 0.2f, GetPos().z);
+	Collision::BoxCollision bodyCollBox = GetBodyCollBox();
+	bodyCollBox.size_h = Character1Params::BODY_COLL_SIZE_NORMAL;
+	bodyCollBox.pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 0.2f, GetPos().z);
+	SetBodyCollBox(bodyCollBox);
 
 	//頭の当たり判定の箱の読み込み
-	GetHeadCollBox().size_h = Character1Params::HEAD_COLL_SIZE;
-	GetHeadCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y + 0.7f, GetPos().z);
-
+	Collision::BoxCollision headCollBox = GetBodyCollBox();
+	headCollBox.size_h = Character1Params::HEAD_COLL_SIZE;
+	headCollBox.pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y + 0.7f, GetPos().z);
+	SetHeadCollBox(headCollBox);
 
 	//前方向の設定
 	SetFrontVector(Character1Params::FRONT_VECTOR);
@@ -80,11 +85,14 @@ void Character1::Initialize()
 	SetHP(Character1Params::GetInstance()->MAX_HP);
 	//体力の最大値の設定
 	SetHPMax(Character1Params::GetInstance()->MAX_HP);
+	//ブースト容量の初期化
+	SetBoostCap(Character1Params::GetInstance()->BOOST_CAP_MAX);
+	//ブースト容量の最大値の設定
+	SetMaxBoostCap(Character1Params::GetInstance()->BOOST_CAP_MAX);
 	//体力のバッファの設定
 	SetHPBuffer(GetHP());
 
-	//
-
+	//Y軸の角度設定
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_1)SetAngleY(Character1Params::ANGLE_Y);
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_2)SetAngleY(-Character1Params::ANGLE_Y);
 
@@ -101,8 +109,6 @@ void Character1::Initialize()
 	//モデルの更新
 	//m_pModel->Update(m_world);
 
-	//エネルギー量の初期化
-	SetBoostCap(Character1Params::GetInstance()->BOOST_CAP_MAX);
 
 
 }
@@ -114,6 +120,8 @@ void Character1::Initialize()
 //////////////////////////
 void Character1::Update(DX::StepTimer const& timer)
 {
+	//基底クラスの更新
+	CharacterBase::Update(timer);
 	//ブースト移動でなければブースト容量を増やす
 	if (GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)
 	{
@@ -124,28 +132,6 @@ void Character1::Update(DX::StepTimer const& timer)
 			SetBoostCap(Character1Params::GetInstance()->BOOST_CAP_MAX);
 		}
 	}
-
-	//プレイヤーのY軸の角度
-	if (GetPos().x < GetEnemyPos().x && (GetLandingFlag() == true || GetCharaState() == eCHARACTER_STATE::BOOST_MOVE)&& GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		//向いている方向を変える
-		SetAngleY( Character1Params::ANGLE_Y);
-		//前方向のベクトルを変える
-		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
-		frontVector.x = 1.0f;
-		SetFrontVector(frontVector);
-	}
-	else if(GetPos().x > GetEnemyPos().x && (GetLandingFlag() == true || GetCharaState() == eCHARACTER_STATE::BOOST_MOVE) && GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		//向いている方向を変える
-		SetAngleY(-Character1Params::ANGLE_Y);
-		//前方向のベクトルを変える
-		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
-		frontVector.x = -1.0f;
-		SetFrontVector(frontVector);
-
-	}
-
 	//ブーストエフェクトマネージャーの更新
 	if (GetFrontVector().x > 0)
 	{
@@ -165,42 +151,8 @@ void Character1::Update(DX::StepTimer const& timer)
 
 	}
 
-
-
-	//回転行列を作成
-	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(GetAngleY()));
-	//座標を行列に変換
-	DirectX::SimpleMath::Matrix trans = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
-	//サイズを行列に変換
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(
-		Character1Params::BODY_SIZE, Character1Params::BODY_SIZE, Character1Params::BODY_SIZE);
-	//ワールド行列に加算
-	SetWorldMatrix(scale * rotY * trans);
-
-	//シールドのサイズ、座標の更新
-	DirectX::SimpleMath::Matrix Scale = DirectX::SimpleMath::Matrix::CreateScale(1);
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
-	SetShieldWorldMatrix(Scale * pos);
-
-
-	//モデルの更新
-	//m_pModel->Update(m_world);
-
-
-	//足元の箱の座標の更新
-	GetLegCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 0.85f, GetPos().z);
-
-	if (GetCharaState() != eCHARACTER_STATE::SQUAT && GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)
-	{
-		//体の箱の座標の更新
-		GetBodyCollBox().size_h = Character1Params::BODY_COLL_SIZE_NORMAL;
-		GetBodyCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y, GetPos().z);
-		//頭の箱の座標の更新
-		GetHeadCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y + 0.9f, GetPos().z);
-	}
-
-	//基底クラスの更新
-	CharacterBase::Update(timer);
+	//当たり判定の更新
+	Character1::CollisionUpdate();
 
 }
 
@@ -246,7 +198,6 @@ void Character1::HitEnemyBody(const Collision::BoxCollision & enemyBodyColl, con
 {
 	//敵の体との当たり判定
 	CharacterBase::HitEnemyBody(enemyBodyColl, enemyHeadColl);
-
 }
 
 ///////////////////////////
@@ -268,66 +219,8 @@ void Character1::HitAttack()
 //////////////////////////
 void Character1::Ready(DX::StepTimer const& timer)
 {
-	//プレイヤーのY軸の角度
-	if (GetPos().x < GetEnemyPos().x && GetLandingFlag() == true && GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		//向いている方向を変える
-		SetAngleY(Character1Params::ANGLE_Y);
-		//前方向のベクトルを変える
-		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
-		frontVector.x = 1.0f;
-		SetFrontVector(frontVector);
-	}
-	else if (GetPos().x > GetEnemyPos().x && GetLandingFlag() == true && GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		//向いている方向を変える
-		SetAngleY(-Character1Params::ANGLE_Y);
-		//前方向のベクトルを変える
-		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
-		frontVector.x = -1.0f;
-		SetFrontVector(frontVector);
-
-	}
-	//回転行列を作成
-	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(GetAngleY()));
-
-	//座標を行列に変換
-	DirectX::SimpleMath::Matrix trans = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
-	//サイズを行列に変換
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(
-		Character1Params::BODY_SIZE, Character1Params::BODY_SIZE, Character1Params::BODY_SIZE);
-	//ワールド行列に加算
-	SetWorldMatrix(scale * rotY* trans);
-
-	//シールドのサイズ、座標の更新
-	DirectX::SimpleMath::Matrix Scale = DirectX::SimpleMath::Matrix::CreateScale(1);
-	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
-	SetShieldWorldMatrix(Scale * pos);
-
-
-
-	//モデルの更新
-	//m_pModel->Update(m_world);
-
-	//足元の箱の座標の更新
-	GetLegCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 0.85f, GetPos().z);
-
-	//体の箱の座標の更新
-	if (GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		GetBodyCollBox().size_h = Character1Params::BODY_COLL_SIZE_NORMAL;
-		GetBodyCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y , GetPos().z);
-	}
-
-	//頭の箱の座標の更新
-	if (GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		GetHeadCollBox().pos = DirectX::SimpleMath::Vector3(
-			GetPos().x,
-			GetPos().y + 0.9f,
-			GetPos().z);
-	}
-
+	//基底クラスの準備関数
+	CharacterBase::Ready(timer);
 
 	//ブーストエフェクトマネージャーの更新
 	if (GetFrontVector().x > 0)
@@ -348,9 +241,19 @@ void Character1::Ready(DX::StepTimer const& timer)
 
 	}
 
-	//基底クラスの準備関数
-	CharacterBase::Ready(timer);
+	//ブースト移動でなければブースト容量を増やす
+	if (GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)
+	{
+		SetBoostCap(GetBoostCap() + 1);
+		//最大値以上になったら最大値を代入
+		if (GetBoostCap() >= Character1Params::GetInstance()->BOOST_CAP_MAX)
+		{
+			SetBoostCap(Character1Params::GetInstance()->BOOST_CAP_MAX);
+		}
+	}
 
+	//当たり判定の更新
+	Character1::CollisionUpdate();
 }
 
 ///////////////////////////
@@ -363,51 +266,6 @@ void Character1::Lose(DX::StepTimer const & timer)
 	//基底クラスの敗北関数
 	CharacterBase::Lose(timer);
 
-	//プレイヤーのY軸の角度
-	if (GetPos().x < GetEnemyPos().x && GetLandingFlag() == true && GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		//向いている方向を変える
-		SetAngleY(Character1Params::ANGLE_Y);
-		//前方向のベクトルを変える
-		//前方向のベクトルを変える
-		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
-		frontVector.x = 1.0f;
-		SetFrontVector(frontVector);
-	}
-	else if (GetPos().x > GetEnemyPos().x && GetLandingFlag() == true && GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		//向いている方向を変える
-		SetAngleY(-Character1Params::ANGLE_Y);
-		//前方向のベクトルを変える
-		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
-		frontVector.x = -1.0f;
-		SetFrontVector(frontVector);
-
-	}
-	//回転行列を作成
-	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(GetAngleY()));
-
-	//座標を行列に変換
-	DirectX::SimpleMath::Matrix trans = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
-	//サイズを行列に変換
-	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(
-		Character1Params::BODY_SIZE, Character1Params::BODY_SIZE, Character1Params::BODY_SIZE);
-	//ワールド行列に加算
-	SetWorldMatrix(scale * rotY* trans);
-	//足元の箱の座標の更新
-	GetLegCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 0.85f, GetPos().z);
-
-	//体の箱の座標の更新
-	if (GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		GetBodyCollBox().size_h = Character1Params::BODY_COLL_SIZE_NORMAL;
-		GetBodyCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y, GetPos().z);
-	}
-	//頭の箱の座標の更新
-	else if (GetCharaState() != eCHARACTER_STATE::SQUAT)
-	{
-		GetHeadCollBox().pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y + 0.9f, GetPos().z);
-	}
 }
 
 ///////////////////////////
@@ -445,6 +303,7 @@ void Character1::AI()
 	CharacterBase::AI();
 }
 
+
 ///////////////////////////
 //攻撃
 //引数:なし
@@ -465,5 +324,67 @@ void Character1::StateManager()
 {
 	//基底クラスのステート管理関数
 	CharacterBase::StateManager();
+}
+
+///////////////////////////
+//当たり判定の更新
+//引数:なし
+//戻り値:なし
+//////////////////////////
+void Character1::CollisionUpdate()
+{
+	//プレイヤーのY軸の角度
+	if (GetPos().x < GetEnemyPos().x && (GetLandingFlag() == true || GetCharaState() == eCHARACTER_STATE::BOOST_MOVE) && GetCharaState() != eCHARACTER_STATE::SQUAT)
+	{
+		//向いている方向を変える
+		SetAngleY(Character1Params::ANGLE_Y);
+		//前方向のベクトルを変える
+		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
+		frontVector.x = 1.0f;
+		SetFrontVector(frontVector);
+	}
+	else if (GetPos().x > GetEnemyPos().x && (GetLandingFlag() == true || GetCharaState() == eCHARACTER_STATE::BOOST_MOVE) && GetCharaState() != eCHARACTER_STATE::SQUAT)
+	{
+		//向いている方向を変える
+		SetAngleY(-Character1Params::ANGLE_Y);
+		//前方向のベクトルを変える
+		DirectX::SimpleMath::Vector3 frontVector = GetFrontVector();
+		frontVector.x = -1.0f;
+		SetFrontVector(frontVector);
+
+	}
+
+	//回転行列を作成
+	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(DirectX::XMConvertToRadians(GetAngleY()));
+	//座標を行列に変換
+	DirectX::SimpleMath::Matrix trans = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
+	//サイズを行列に変換
+	DirectX::SimpleMath::Matrix scale = DirectX::SimpleMath::Matrix::CreateScale(
+		Character1Params::BODY_SIZE, Character1Params::BODY_SIZE, Character1Params::BODY_SIZE);
+	//ワールド行列に加算
+	SetWorldMatrix(scale * rotY * trans);
+
+	//シールドのサイズ、座標の更新
+	DirectX::SimpleMath::Matrix Scale = DirectX::SimpleMath::Matrix::CreateScale(1);
+	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
+	SetShieldWorldMatrix(Scale * pos);
+
+	//足元の箱の座標の更新
+	Collision::BoxCollision legCollBox = GetLegCollBox();
+	legCollBox.pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y - 0.85f, GetPos().z);
+	SetLegCollBox(legCollBox);
+
+	if (GetCharaState() != eCHARACTER_STATE::SQUAT && GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)
+	{
+		//体の箱の座標の更新
+		Collision::BoxCollision bodyCollBox = GetBodyCollBox();
+		bodyCollBox.size_h = Character1Params::BODY_COLL_SIZE_NORMAL;
+		bodyCollBox.pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y, GetPos().z);
+		SetBodyCollBox(bodyCollBox);
+		//頭の箱の座標の更新
+		Collision::BoxCollision headCollBox = GetHeadCollBox();
+		headCollBox.pos = DirectX::SimpleMath::Vector3(GetPos().x, GetPos().y + 0.9f, GetPos().z);
+		SetHeadCollBox(headCollBox);
+	}
 }
 

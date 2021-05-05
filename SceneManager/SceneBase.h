@@ -15,10 +15,8 @@ class SceneBase
 {
 public:	
 	//デストラクタ
-	virtual ~SceneBase()
-	{
+	virtual ~SceneBase() {}
 
-	}
 
 	//初期化
 	virtual void Initialize() = 0;

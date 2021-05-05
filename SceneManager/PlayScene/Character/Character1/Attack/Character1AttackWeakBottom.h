@@ -16,7 +16,7 @@ public:
 	//デストラクタ
 	~Character1AttackWeakBottom();
 	//初期化
-	void Initialize(CharacterBase* pCharacter, DX::DeviceResources* pDeviceResources) override;
+	void Initialize(CharacterBase* pCharacter) override;
 	//更新
 	void Update() override;
 	//描画

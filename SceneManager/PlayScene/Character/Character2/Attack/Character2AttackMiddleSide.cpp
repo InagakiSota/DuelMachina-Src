@@ -7,6 +7,7 @@
 #include "Character2AttackMiddleSide.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
+#include "Src/Cgdi.h"
 
 //攻撃力
 const int Character2AttackMiddleSide::POWER = 7;
@@ -45,10 +46,10 @@ Character2AttackMiddleSide::~Character2AttackMiddleSide()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:
 //////////////////////////
-void Character2AttackMiddleSide::Initialize(CharacterBase * pCharacter, DX::DeviceResources * pDeviceResources)
+void Character2AttackMiddleSide::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 }
 
 ///////////////////////////

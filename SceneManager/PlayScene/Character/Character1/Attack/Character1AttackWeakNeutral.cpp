@@ -7,6 +7,7 @@
 #include "Character1AttackWeakNeutral.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
+#include "Src/Cgdi.h"
 
 //当たり判定のサイズ
 const DirectX::SimpleMath::Vector3 Character1AttackWeakNeutral::COLL_SIZE = DirectX::SimpleMath::Vector3(0.4f, 0.15f, 0.5f);
@@ -45,10 +46,10 @@ Character1AttackWeakNeutral::~Character1AttackWeakNeutral()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:
 //////////////////////////
-void Character1AttackWeakNeutral::Initialize(CharacterBase * pCharacter,DX::DeviceResources* pDeviceResources)
+void Character1AttackWeakNeutral::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 }
 
 ///////////////////////////

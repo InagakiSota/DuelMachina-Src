@@ -36,6 +36,25 @@ public:
 	virtual void Finalize() = 0;
 	//床との当たり判定
 	virtual void HitFloor(const Collision::BoxCollision& floorColl) = 0;
+	//準備
+	virtual void Ready(DX::StepTimer const& timer) = 0;
+	//敗北
+	virtual void Lose(DX::StepTimer const& timer) = 0;
+
+	//リセット
+	virtual void Reset() = 0;
+
+	//アニメーションの切り替え
+	virtual void ChangeAnimation(const int& animationStack) = 0;
+
+	//キャラのステート管理
+	virtual void StateManager() = 0;
+	//攻撃
+	virtual void Attack() = 0;
+	
+	//当たり判定の更新
+	virtual void CollisionUpdate() = 0;
+
 
 	////////////////////////////////
 	//ゲッター、セッター
@@ -130,6 +149,8 @@ public:
 	virtual void SetBoostCap(const int& boostCap) = 0;
 	//最大ブースト容量の取得
 	virtual int GetMaxBoostCap() = 0;
+	//最大ブースト容量の設定
+	virtual void SetMaxBoostCap(const int& boostCapMax) = 0;
 	//攻撃構造体のポインタの取得
 	virtual AttackStruct* GetAttack() = 0;
 	//攻撃構造体のポインタの設定
@@ -167,21 +188,6 @@ public:
 
 	/////////////////////////////////////
 
-	//準備
-	virtual void Ready(DX::StepTimer const& timer) = 0;
-	//敗北
-	virtual void Lose(DX::StepTimer const& timer) = 0;
-
-	//リセット
-	virtual void Reset() = 0;
-
-	//アニメーションの切り替え
-	virtual void ChangeAnimation(const int& animationStack) = 0;
-
-	//キャラのステート管理
-	virtual void StateManager() = 0;
-	//攻撃
-	virtual void Attack() = 0;
 
 
 };

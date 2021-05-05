@@ -7,6 +7,7 @@
 #include "Character1AttackMiddleNeutral.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
+#include "Src/Cgdi.h"
 
 //攻撃力
 const int Character1AttackMiddleNeutral::POWER = 10;
@@ -41,10 +42,10 @@ Character1AttackMiddleNeutral::~Character1AttackMiddleNeutral()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:なし
 //////////////////////////
-void Character1AttackMiddleNeutral::Initialize(CharacterBase * pCharacter, DX::DeviceResources * pDeviceResources)
+void Character1AttackMiddleNeutral::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 }
 
 ///////////////////////////

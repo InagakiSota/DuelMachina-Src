@@ -8,25 +8,26 @@
 
 #include <SimpleMath.h>
 #include "GeometricPrimitive.h"
-#include "../../DeviceResources.h"
+#include "ICharacterAttack.h"
+#include "DeviceResources.h"
 
 class CharacterBase;
 struct AttackStruct;
 
-class CharacterAttackBase
+class CharacterAttackBase : public ICharacterAttack
 {
 public:
 	~CharacterAttackBase() {};
 	//初期化
-	virtual void Initialize(CharacterBase* pCharacter, DX::DeviceResources* pDeviceResources) = 0;
+	void Initialize(CharacterBase* pCharacter) override {}
 	//更新
-	virtual void Update() = 0;
+	void Update()override {}
 	//描画
-	virtual void Render(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) = 0;
+	void Render(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj) override {}
 	//終了処理
-	virtual void Finalize() = 0;
+	void Finalize() override {}
 	//リセット
-	virtual void Reset() = 0;
+	void Reset() override {}
 
 protected:
 	//キャラクターのポインタ

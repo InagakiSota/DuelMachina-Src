@@ -6,16 +6,18 @@
 
 #pragma once
 
+#include "ICharacterState.h"
+
 class CharacterBase;
 
-class CharacterStateBase
+class CharacterStateBase : public ICharacterState
 {
 public:
 	~CharacterStateBase() {};
 	//初期化
-	virtual void Initialize(CharacterBase* pCharacter) = 0;
+	void Initialize(CharacterBase* pCharacter) override {}
 	//更新
-	virtual void Update() = 0;
+	void Update() override {}
 
 protected:
 	//キャラクターのポインタ

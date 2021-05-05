@@ -167,7 +167,7 @@ void CharacterBase::Initialize()
 	//ステートマネージャーの読み込み、初期化
 	m_pStateManager->Initialize(this);
 	//攻撃マネージャーの読み込み、初期化
-	m_pCharacterAttackManager->Initialize(this, gdi->GetDeviceResources());
+	m_pCharacterAttackManager->Initialize(this);
 
 	//ヒットエフェクトマネージャーの読み込み、作成
 	m_pHitEffectManager = std::make_unique<HitEffectManager>();
@@ -212,7 +212,7 @@ void CharacterBase::Update(DX::StepTimer const& timer)
 	{
 		m_vel.y += GRAVITY;
 	}
-	else if (m_landingFlag == true && m_charaState == eCHARACTER_STATE::BOOST_MOVE)m_vel.y = 0.0f;
+	else if (m_landingFlag == true)m_vel.y = 0.0f;
 
 	//移動制限
 	if (m_pos.x > -MOVE_LIMIT_X || m_pos.x < MOVE_LIMIT_X)m_vel.x = 0.0f;
@@ -604,7 +604,7 @@ void CharacterBase::Ready(DX::StepTimer const& timer)
 		m_vel.y += GRAVITY;
 
 	}
-	else if (m_landingFlag == true)
+	else if (m_landingFlag == true && m_charaState == eCHARACTER_STATE::BOOST_MOVE)
 	{
 		m_vel.y = 0.0f;
 	}

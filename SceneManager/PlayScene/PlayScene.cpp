@@ -601,9 +601,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 	Menu();
 	//リザルト
 	if(m_isResult == true)Result(timer);
-
-		
-
 	//フェードマネージャーの更新
 	FadeManager::GetInstance()->Update(timer, m_fadeTimer);
 }

@@ -8,6 +8,7 @@
 #include "Character2AttackWeakBottom.h"
 #include "../../CharacterBase.h"
 #include "../../../AttackManager/AttackManager.h"
+#include "Src/Cgdi.h"
 
 //攻撃力
 const int Character2AttackWeakBottom::POWER = 5;
@@ -43,10 +44,10 @@ Character2AttackWeakBottom::~Character2AttackWeakBottom()
 //引数:キャラクターのポインタ、デバイスリソース
 //戻り値:
 //////////////////////////
-void Character2AttackWeakBottom::Initialize(CharacterBase * pCharacter, DX::DeviceResources * pDeviceResources)
+void Character2AttackWeakBottom::Initialize(CharacterBase * pCharacter)
 {
 	m_pCharacter = pCharacter;
-	m_pDeviceResources = pDeviceResources;
+	m_pDeviceResources = gdi->GetDeviceResources();
 }
 
 ///////////////////////////
