@@ -27,15 +27,10 @@ const float TitleScene::PUSH_SPACE_BLIND_INTERBVAL = 1.0f;
 //天球の座標
 const DirectX::SimpleMath::Vector3 TitleScene::SKYBOX_POS = DirectX::SimpleMath::Vector3(0.0f, 20.0f, 0.0f);
 
-
-
 TitleScene::TitleScene()
 {
-	m_pDeviceResources = nullptr;
-	m_pKeyTracker = nullptr;
-
-	m_sceneState = eSCENE_STATE::FADE_IN;
-	m_fadeTimer = 1.0f;
+	//基底クラスのコンストラクタ
+	SceneBase::SceneBase();
 
 	m_pLogoSprite = nullptr;
 	m_pSpaceSprite = nullptr;
@@ -67,14 +62,10 @@ TitleScene::~TitleScene()
 void TitleScene::Initialize()
 {
 	m_pDeviceResources = gdi->GetDeviceResources();
-
 	m_pStates = gdi->GetStates();
 
 	auto device = m_pDeviceResources->GetD3DDevice();
 	auto context = m_pDeviceResources->GetD3DDeviceContext();
-
-
-	DebugFont::GetInstance()->Create(device, context);
 
 	//キートラッカーの作成
 	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
@@ -215,7 +206,6 @@ void TitleScene::Render()
 //////////////////////////
 void TitleScene::Finalize()
 {
-	DebugFont::Dispose();
 
 	m_pSkyBox->Lost();
 

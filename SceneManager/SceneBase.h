@@ -10,22 +10,24 @@
 #include "Keyboard.h"
 #include <SimpleMath.h>
 #include <CommonStates.h>
+#include "IScene.h"
 
-class SceneBase
+class SceneBase : public IScene
 {
 public:	
+	//コンストラクタ
+	SceneBase();
 	//デストラクタ
-	virtual ~SceneBase() {}
-
+	~SceneBase();
 
 	//初期化
-	virtual void Initialize() = 0;
+	void Initialize() override;
 	//更新
-	virtual void Update(DX::StepTimer const& timer) = 0;
+	void Update(DX::StepTimer const& timer) override;
 	//描画
-	virtual void Render() = 0;
+	void Render() override;
 	//終了処理
-	virtual void Finalize() = 0;
+	void Finalize() override;
 
 protected:
 	//シーンのステート
