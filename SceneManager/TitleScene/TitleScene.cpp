@@ -44,13 +44,12 @@ TitleScene::TitleScene()
 
 TitleScene::~TitleScene()
 {
-	m_pKeyTracker.reset();
-	m_pDeviceResources = nullptr;
+	//基底クラスのデストラクタ
+	SceneBase::~SceneBase();
 
 	m_pLogoSprite.reset();
 	m_pSpaceSprite.reset();
 
-	m_pStates = nullptr;
 }
 
 
@@ -61,28 +60,8 @@ TitleScene::~TitleScene()
 //////////////////////////
 void TitleScene::Initialize()
 {
-	m_pDeviceResources = gdi->GetDeviceResources();
-	m_pStates = gdi->GetStates();
-
-	auto device = m_pDeviceResources->GetD3DDevice();
-	auto context = m_pDeviceResources->GetD3DDeviceContext();
-
-	//キートラッカーの作成
-	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
-
-	m_sceneState = eSCENE_STATE::FADE_IN;
-
-	//ビュー行列を作成
-	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY);
-
-	//画面サイズを取得する
-	RECT outputSize = m_pDeviceResources->GetOutputSize();
-	UINT backBufferWidth = std::max<UINT>(outputSize.right - outputSize.left, 1);
-	UINT backBufferHeight = std::max<UINT>(outputSize.bottom - outputSize.top, 1);
-
-	//射影行列を作成
-	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PI / 4.0f, float(backBufferWidth) / float(backBufferHeight), 0.01f, 1000.0f);
+	//基底クラスの初期化関数
+	SceneBase::Initialize();
 
 	//ロゴ画像の読み込み
 	m_pLogoSprite = std::make_unique<Sprite2D>();
@@ -93,8 +72,8 @@ void TitleScene::Initialize()
 
 	//天球のモデル読み込み
 	m_pSkyBox = std::make_unique<ModelObject>();
-	m_pSkyBox->Create(m_pDeviceResources, L"Resources/Models/Space.cmo");
-
+	m_pSkyBox->Create(GetDeviceResources(), L"Resources/Models/Space.cmo");
+	//天球のワールド行列設定
 	m_skyBoxWorld = DirectX::SimpleMath::Matrix::Identity;
 
 	//pushSpaceの画像の点滅フラグ初期化
@@ -108,24 +87,18 @@ void TitleScene::Initialize()
 //////////////////////////
 void TitleScene::Update(DX::StepTimer const& timer)
 {
-	//キーボードの状態の取得
-	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
-	m_pKeyTracker->Update(keyState);
+	//基底クラスの更新
+	SceneBase::Update(timer);
 
+	//スペース入力の画像更新
 	m_pSpaceSprite->Update(PUSH_SPACE_POS);
 
+	//天球を回転させる
 	DirectX::SimpleMath::Matrix pos = DirectX::SimpleMath::Matrix::CreateTranslation(SKYBOX_POS);
 	m_skyBoxAngleY += 0.001f;
 	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(m_skyBoxAngleY);
-
-//	m_skyBoxWorld *= rotY;// *pos;
-	//m_skyBoxWorld *= rotY;// *pos;
-	//m_skyBoxWorld += pos;
-	//m_skyBoxWorld *= rotY; 
-	//m_skyBoxWorld += pos;
+	//天球のワールド行列の設定
 	m_skyBoxWorld = DirectX::SimpleMath::Matrix::CreateTranslation(DirectX::SimpleMath::Vector3::Zero) * rotY * pos;
-
-	//m_skyBoxWorld *= rotY;
 
 	//天球のモデルの更新
 	m_pSkyBox->Update(m_skyBoxWorld);
@@ -139,39 +112,43 @@ void TitleScene::Update(DX::StepTimer const& timer)
 	}
 	
 	//シーンのステート
-	switch (m_sceneState)
+	switch (GetSceneState())
 	{
 		//フェードイン
-		case SceneBase::eSCENE_STATE::FADE_IN:
+		case eSCENE_STATE::FADE_IN:
 		{
-			m_fadeTimer -= static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-			if (m_fadeTimer <= 0.0f)m_sceneState = eSCENE_STATE::MAIN;
+			//フェードのタイマーを減算する
+			SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+			//タイマーが0以下になったらメインステートに遷移
+			if (GetFadeTimer() <= 0.0f)SetSceneState(eSCENE_STATE::MAIN);
 
 			break;
 		}
 		//メイン
-		case SceneBase::eSCENE_STATE::MAIN:
+		case eSCENE_STATE::MAIN:
 		{
-			if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Space))
+			//スペースキー入力でフェードアウトに遷移
+			if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 			{
-				m_sceneState = eSCENE_STATE::FADE_OUT;
-
-				soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_SUBMIT);
+				SetSceneState(eSCENE_STATE::FADE_OUT);
+				//SE再生
+				SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_SUBMIT));
 			}
-
-			if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Escape))
+			//ESC入力でゲームを終了する
+			if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape))
 			{
 				PostQuitMessage(0);
 			}
 
-
 			break;
 		}
 		//フェードアウト
-		case SceneBase::eSCENE_STATE::FADE_OUT:
+		case eSCENE_STATE::FADE_OUT:
 		{
-			m_fadeTimer += static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-			if(m_fadeTimer >= 1.0f)SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
+			//フェードのタイマーを加算する
+			SetFadeTimer(GetFadeTimer() + static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+			//タイマーが規定値を越えたらキャラクターセレクトシーンに遷移
+			if(GetFadeTimer() >= 1.0f)SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
 
 			break;
 		}
@@ -180,7 +157,7 @@ void TitleScene::Update(DX::StepTimer const& timer)
 	}
 	
 	//フェードマネージャーの更新
-	FadeManager::GetInstance()->Update(timer, m_fadeTimer);
+	FadeManager::GetInstance()->Update(timer, GetFadeTimer());
 }
 
 ///////////////////////////
@@ -191,7 +168,7 @@ void TitleScene::Update(DX::StepTimer const& timer)
 void TitleScene::Render()
 {
 	//天球の描画
-	m_pSkyBox->Render(m_view, m_proj);
+	m_pSkyBox->Render(GetView(), GetProj());
 
 	//ロゴ画像の描画
 	m_pLogoSprite->Draw(true);
@@ -206,7 +183,6 @@ void TitleScene::Render()
 //////////////////////////
 void TitleScene::Finalize()
 {
-
 	m_pSkyBox->Lost();
 
 	m_pLogoSprite->Reset();

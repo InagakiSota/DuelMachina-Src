@@ -333,7 +333,7 @@ void PlayScene::Update(DX::StepTimer const& timer)
 				if (m_fadeTimer <= 0.0f)
 				{	
 					//BGMÇÃçƒê∂
-					soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM);
+					m_soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM);
 
 					//LoadDisplay::GetInstance()->Update(false);
 					m_sceneState = eSCENE_STATE::MAIN;
@@ -576,7 +576,7 @@ void PlayScene::Update(DX::StepTimer const& timer)
 
 
 					}
-					ADX2::GetInstance().Stop(soundID);
+					ADX2::GetInstance().Stop(m_soundID);
 
 				}
 				break;
@@ -729,7 +729,7 @@ void PlayScene::Finalize()
 
 	//delete m_pFbxModel;
 	//m_pFbxModel = nullptr;
-	ADX2::GetInstance().Stop(soundID);
+	ADX2::GetInstance().Stop(m_soundID);
 
 	//UIÉNÉâÉXÇÃèIóπèàóù
 	m_pPlaySceneUI->Finalize();
@@ -998,7 +998,7 @@ void PlayScene::Menu()
 				SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
 				//SEçƒê∂
 				ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
-				ADX2::GetInstance().Stop(soundID);
+				ADX2::GetInstance().Stop(m_soundID);
 				break;
 			}
 

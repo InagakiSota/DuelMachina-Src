@@ -18,12 +18,15 @@ ePLAYER_ID ResultScene::m_winPlayerID = ePLAYER_ID::PLAYER_1;
 //コンストラクタ
 ResultScene::ResultScene()
 {
+	//基底クラスのコンストラクタ
+	SceneBase::SceneBase();
 }
 
 //デストラクタ
 ResultScene::~ResultScene()
 {
-	m_pStates = nullptr;
+	//基底クラスのデストラクタ
+	SceneBase::~SceneBase();
 }
 
 ///////////////////////////
@@ -33,37 +36,14 @@ ResultScene::~ResultScene()
 //////////////////////////
 void ResultScene::Initialize()
 {
-	m_pDeviceResources = gdi->GetDeviceResources();
+	//基底クラスの初期化関数
+	SceneBase::Initialize();
 
-	m_pStates = gdi->GetStates();
 
-	auto device = m_pDeviceResources->GetD3DDevice();
+	SetFadeTimer(1.0f);
+	SetSceneState(eSCENE_STATE::FADE_IN);
 
-	// TODO: Initialize device dependent objects here (independent of window size).
-	device;
-
-	auto context = m_pDeviceResources->GetD3DDeviceContext();
-
-	//ビュー行列を作成する
-	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.f, 5.0f);
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY);
-
-	//画面サイズを取得する
-	RECT outputSize = m_pDeviceResources->GetOutputSize();
-	UINT backBufferWidth = std::max<UINT>(outputSize.right - outputSize.left, 1);
-	UINT backBufferHeight = std::max<UINT>(outputSize.bottom - outputSize.top, 1);
-
-	//射影行列を作る
-	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PI / 4.0f, float(backBufferWidth) / float(backBufferHeight), 0.01f, 1000.0f);
-
-	//m_pDebugCamera = std::make_unique<DebugCamera>();
-
-	m_fadeTimer = 1.0f;
-	m_sceneState = eSCENE_STATE::FADE_IN;
-
-	//キートラッカーの作成
-	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
-
+	//画像の読み込み
 	m_winPlayer1Sprite = std::make_unique<Sprite2D>();
 	m_winPlayer1Sprite->Create(L"Resources/Textures/p1win_result.png");
 	m_winPlayer2Sprite = std::make_unique<Sprite2D>();
@@ -80,50 +60,34 @@ void ResultScene::Initialize()
 //////////////////////////
 void ResultScene::Update(DX::StepTimer const & timer)
 {
-	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
-	m_pKeyTracker->Update(keyState);
+	//基底クラスの更新関数
+	SceneBase::Update(timer);
 
 	//ビュー行列の更新
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY);
+	SetView( DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY));
 	//m_view = m_pDebugCamera->getViewMatrix();
 
 	float time = float(timer.GetTotalSeconds());
 
 	//シーンのステート
-	switch (m_sceneState)
+	switch (GetSceneState())
 	{
 		//フェードイン
-		case SceneBase::eSCENE_STATE::FADE_IN:
+		case eSCENE_STATE::FADE_IN:
 		{
-			m_fadeTimer -= static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-			if (m_fadeTimer <= 0.0f)m_sceneState = eSCENE_STATE::MAIN;
-
+			//フェードのタイマーを減算する
+			SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+			//タイマーが0以下になったらメインステートに遷移
+			if (GetFadeTimer() <= 0.0f)SetSceneState(eSCENE_STATE::MAIN);
 			break;
 		}
 		//メイン
-		case SceneBase::eSCENE_STATE::MAIN:
+		case eSCENE_STATE::MAIN:
 		{
-			////床のワールド行列の更新
-			//Matrix boxScale = Matrix::CreateScale(Vector3(1, 1, 1));
-			//Matrix boxTrans = Matrix::CreateTranslation(Vector3(1.5f, 0, 0));
-			//Matrix boxRotY = Matrix::CreateRotationY(time);
-
-			//cupWorld = boxScale  * boxRotY* boxTrans;
-
-			//static float rot = 0;
-			//rot += 0.01f;
-			//Matrix effectRotY = Matrix::CreateRotationY(rot);
-			//Matrix effectTrans = Matrix::CreateTranslation(0.0f, 1.0f, -1.0f);
-			//Matrix effectScale = Matrix::CreateScale(2.0f, 2.0f, 0.0f);
-
-			//Matrix effectWorld = effectScale * effectRotY * effectTrans;
-
-	
-
-
-			if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Space))
+			//スペースキー入力でフェードアウトに遷移
+			if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 			{
-				m_sceneState = eSCENE_STATE::FADE_OUT;
+				SetSceneState(eSCENE_STATE::FADE_OUT);
 			}
 
 			break;
@@ -131,11 +95,12 @@ void ResultScene::Update(DX::StepTimer const & timer)
 
 
 		//フェードアウト
-		case SceneBase::eSCENE_STATE::FADE_OUT:
+		case eSCENE_STATE::FADE_OUT:
 		{
-			m_fadeTimer += static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-
-			if (m_fadeTimer >= 1.0f)SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
+			//フェードのタイマーを加算する
+			SetFadeTimer(GetFadeTimer() + static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+			//タイマーが規定値を越えたらキャラクターセレクトシーンに遷移
+			if (GetFadeTimer() >= 1.0f)SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
 
 			break;
 		}
@@ -144,7 +109,7 @@ void ResultScene::Update(DX::StepTimer const & timer)
 	}
 
 	//フェードマネージャーの更新
-	FadeManager::GetInstance()->Update(timer, m_fadeTimer);
+	FadeManager::GetInstance()->Update(timer, GetFadeTimer());
 }
 
 ///////////////////////////

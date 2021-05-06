@@ -5,6 +5,7 @@
 ///////////////////////////////////
 #include "pch.h"
 #include "SceneBase.h"
+#include "Src/Cgdi.h"
 
 //コンストラクタ
 SceneBase::SceneBase()
@@ -22,6 +23,10 @@ SceneBase::SceneBase()
 //デストラクタ
 SceneBase::~SceneBase()
 {
+	m_pKeyTracker.reset();
+	m_pDeviceResources = nullptr;
+	m_pStates = nullptr;
+
 }
 
 ///////////////////////////
@@ -31,6 +36,29 @@ SceneBase::~SceneBase()
 //////////////////////////
 void SceneBase::Initialize()
 {
+	m_pDeviceResources = gdi->GetDeviceResources();
+	m_pStates = gdi->GetStates();
+
+	auto device = m_pDeviceResources->GetD3DDevice();
+	auto context = m_pDeviceResources->GetD3DDeviceContext();
+
+	//キートラッカーの作成
+	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
+	//シーンのステート設定
+	m_sceneState = eSCENE_STATE::FADE_IN;
+
+	//ビュー行列を作成
+	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY);
+
+	//画面サイズを取得する
+	RECT outputSize = m_pDeviceResources->GetOutputSize();
+	UINT backBufferWidth = std::max<UINT>(outputSize.right - outputSize.left, 1);
+	UINT backBufferHeight = std::max<UINT>(outputSize.bottom - outputSize.top, 1);
+
+	//射影行列を作成
+	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PI / 4.0f, float(backBufferWidth) / float(backBufferHeight), 0.01f, 1000.0f);
+
 }
 
 ///////////////////////////
@@ -40,6 +68,10 @@ void SceneBase::Initialize()
 //////////////////////////
 void SceneBase::Update(DX::StepTimer const& timer)
 {
+	//キーボードの状態の取得
+	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
+	m_pKeyTracker->Update(keyState);
+
 }
 
 ///////////////////////////

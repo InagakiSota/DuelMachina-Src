@@ -1,3 +1,9 @@
+///////////////////////////////////
+//キャラクターセレクトシーンのクラス
+//作成者：GS3_05_稲垣颯太
+//作成日：2020年7月15日
+///////////////////////////////////
+
 #include "pch.h"
 #include "CharaSelectScene.h"
 #include "Src\FrameWork\DebugFont\DebugFont.h"
@@ -20,6 +26,7 @@
 #include "../PlayScene/Character/ChracterAnimationNumber.h"
 #include "Src/Cgdi.h"
 
+//各キャラクターのアイコンの座標
 const DirectX::SimpleMath::Vector2 CharaSelectScene::CHARA1_ICON_POS = DirectX::SimpleMath::Vector2(250.0f, 260.0f);
 const DirectX::SimpleMath::Vector2 CharaSelectScene::CHARA2_ICON_POS = DirectX::SimpleMath::Vector2(810.0f, 260.0f);
 const DirectX::SimpleMath::Vector2 CharaSelectScene::CHARA3_ICON_POS = DirectX::SimpleMath::Vector2(1370.0f, 260.0f);
@@ -105,9 +112,7 @@ void CharaSelectScene::Initialize()
 	//
 	for (int i = 0; i < CHARA_NUM; i++)
 	{
-		//m_modelWorld[i] *= DirectX::SimpleMath::Matrix::CreateTranslation(DirectX::SimpleMath::Vector3::Zero);
-		//m_modelWorld[i] *= rotY;// *DirectX::SimpleMath::Matrix::CreateTranslation(MODEL_POS);
-		//m_modelWorld[i] *= DirectX::SimpleMath::Matrix::CreateTranslation(MODEL_POS);
+		//各キャラクターのワールド行列を設定
 		m_modelWorld[i] = DirectX::SimpleMath::Matrix::CreateScale(MODEL_SIZE[i]) *  DirectX::SimpleMath::Matrix::CreateTranslation(DirectX::SimpleMath::Vector3::Zero) *
 			rotY * DirectX::SimpleMath::Matrix::CreateTranslation(MODEL_POS) * rotY;
 	}
@@ -174,7 +179,7 @@ void CharaSelectScene::Initialize()
 	//現在選択しているキャラクターの初期設定
 	m_nowSelect = static_cast<int>(eCHARACTER_ID::CHARACTER_1);
 
-	soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_SELECTSCENE_BGM);
+	m_soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_SELECTSCENE_BGM);
 	m_cursorColor = DirectX::SimpleMath::Vector4(0.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -305,7 +310,7 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 					//SE再生
 					ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
 
-					ADX2::GetInstance().Stop(soundID);
+					ADX2::GetInstance().Stop(m_soundID);
 
 				}
 
@@ -347,7 +352,7 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 					default:
 						break;
 				}
-				ADX2::GetInstance().Stop(soundID);
+				ADX2::GetInstance().Stop(m_soundID);
 
 				//プレイシーンへの遷移
 				SceneManager::GetInstance()->SetScene(eSCENE_ID::PLAY_SCENE);
@@ -451,7 +456,7 @@ void CharaSelectScene::Finalize()
 	m_pManualSprite->Reset();
 
 
-	ADX2::GetInstance().Stop(soundID);
+	ADX2::GetInstance().Stop(m_soundID);
 
 }
 

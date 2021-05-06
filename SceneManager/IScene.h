@@ -8,6 +8,9 @@
 
 #include <StepTimer.h>
 #include "DeviceResources.h"
+#include <CommonStates.h>
+
+enum class eSCENE_STATE;
 
 class IScene
 {
@@ -29,4 +32,33 @@ public:
 	//////////////////////////////
 	//デバイスリソースの取得
 	virtual DX::DeviceResources* GetDeviceResources() = 0;
+	//コモンステートの取得
+	virtual DirectX::CommonStates* GetState() = 0;
+	//キートラッカーの取得
+	virtual DirectX::Keyboard::KeyboardStateTracker* GetKeyTracker() = 0;
+	//シーンのステートの取得
+	virtual eSCENE_STATE GetSceneState() = 0;
+	//シーンのステートの設定
+	virtual void SetSceneState(const eSCENE_STATE& sceneState) = 0;
+	//フェードのタイマーの取得
+	virtual float GetFadeTimer() = 0;
+	//フェードのタイマーの設定
+	virtual void SetFadeTimer(const float& fadeTimer) = 0;
+	//ビュー行列の取得
+	virtual DirectX::SimpleMath::Matrix GetView() = 0;
+	//ビュー行列の設定
+	virtual void SetView(const DirectX::SimpleMath::Matrix& view) = 0;
+	//射影行列の取得
+	virtual DirectX::SimpleMath::Matrix GetProj() = 0;
+	//射影行列の設定
+	virtual void SetProj(const  DirectX::SimpleMath::Matrix& proj) = 0;
+	//カメラの座標の取得
+	virtual DirectX::SimpleMath::Vector3 GetCameraPos() = 0;
+	//カメラの座標の設定
+	virtual void SetCameraPos(const DirectX::SimpleMath::Vector3& cameraPos) = 0;
+	//音のIDの取得
+	virtual int GetSoundID() = 0;
+	//音のIDの設定
+	virtual void SetSoundID(const int& soundID) = 0;
+
 };

@@ -14,13 +14,19 @@ class TitleScene :
 	public SceneBase
 {
 public:
+	//コンストラクタ
 	TitleScene();
+	//デストラクタ
 	~TitleScene();
 
-	void Initialize() override;		//初期化
-	void Update(DX::StepTimer const& timer)override;			//更新
-	void Render()override;			//描画
-	void Finalize()override;		//終了処理
+	//初期化
+	void Initialize() override;		
+	//更新
+	void Update(DX::StepTimer const& timer)override;
+	//描画
+	void Render()override;	
+	//終了処理	
+	void Finalize()override;
 
 private:
 
