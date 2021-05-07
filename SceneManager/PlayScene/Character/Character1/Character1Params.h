@@ -64,6 +64,7 @@ public:
 	static const float BOOST_EFFECT_ANGLE_RIGHT;
 
 
+
 //シングルトン
 public:
 	//自身のインスタンスの取得

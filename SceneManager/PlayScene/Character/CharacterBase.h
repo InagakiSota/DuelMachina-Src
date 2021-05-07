@@ -96,6 +96,18 @@ public:
 		 return m_startPos;
 	 }
 
+	 //ヒットエフェクトの発生位置の座標の取得
+	 DirectX::SimpleMath::Vector3 GetHitEffectPos() override
+	 {
+		 return m_hitEffectPos;
+	 }
+	 //ヒットエフェクトの発生位置の座標の設定
+	 void SetHitEffectPos(const DirectX::SimpleMath::Vector3& hitEffectPos) override
+	 {
+		 m_hitEffectPos = hitEffectPos;
+	 }
+
+
 	//足元の当たり判定の箱の取得
 	 Collision::BoxCollision GetLegCollBox() override
 	 {
@@ -427,6 +439,8 @@ private:
 	DirectX::SimpleMath::Vector3 m_pos;
 	//初期座標
 	DirectX::SimpleMath::Vector3 m_startPos;
+	//ヒットエフェクトの座標
+	DirectX::SimpleMath::Vector3 m_hitEffectPos;
 	//移動量
 	DirectX::SimpleMath::Vector3 m_vel;
 	//3Dモデル

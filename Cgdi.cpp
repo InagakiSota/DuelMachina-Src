@@ -34,7 +34,7 @@ Cgdi* Cgdi::GetInstance()
 //引数:デバイスリソース、画面の幅、高さ
 //戻り値:なし
 //////////////////////////
-void Cgdi::Initialize(DX::DeviceResources* deviceResources, float width, float height)
+void Cgdi::Initialize(DX::DeviceResources* deviceResources, DirectX::CommonStates* commonStates, float width, float height)
 {
 	//画面サイズの設定
 	SetScreenSize(width, height);
@@ -43,11 +43,13 @@ void Cgdi::Initialize(DX::DeviceResources* deviceResources, float width, float h
 
 	m_deviceResources = deviceResources;
 
+	m_states = commonStates;
+
 	auto device = m_deviceResources->GetD3DDevice();
 	auto deviceContext = m_deviceResources->GetD3DDeviceContext();
 
 	// コモンステートの生成
-	m_states = std::make_unique<DirectX::CommonStates>(device);
+	//m_states = std::make_unique<DirectX::CommonStates>(device);
 
 	//スプライトバッチの生成
 	m_spriteBatch = std::make_unique<DirectX::SpriteBatch>(deviceContext);

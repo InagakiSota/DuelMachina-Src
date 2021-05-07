@@ -58,6 +58,8 @@ public:
 	static const float BOOST_EFFECT_ANGLE_LEFT;
 	//ブーストエフェクトの角度(右側)
 	static const float BOOST_EFFECT_ANGLE_RIGHT;
+	//ヒットエフェクトのY座標
+	static const float HIT_EFFECT_POS_Y;
 
 
 	//シングルトン

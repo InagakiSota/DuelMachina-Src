@@ -86,6 +86,9 @@ void Character2::Initialize()
 	SetMaxBoostCap(Character2Params::GetInstance()->BOOST_CAP_MAX);
 	//体力のバッファの設定
 	SetHPBuffer(GetHP());
+	//ヒットエフェクトの発生位置の座標設定
+	SetHitEffectPos(DirectX::SimpleMath::Vector3(
+		GetPos().x, GetPos().y + Character2Params::HIT_EFFECT_POS_Y, GetPos().z));
 
 	//Y軸の角度設定
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_1)SetAngleY(Character2Params::ANGLE_Y);
@@ -111,6 +114,10 @@ void Character2::Update(DX::StepTimer const& timer)
 {	
 	//基底クラスの更新
 	CharacterBase::Update(timer);
+
+	//ヒットエフェクトの発生位置の座標設定
+	SetHitEffectPos(DirectX::SimpleMath::Vector3(
+		GetPos().x, GetPos().y + Character2Params::HIT_EFFECT_POS_Y, GetPos().z));
 
 	//ブースト移動でなければブースト容量を増やす
 	if (GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)

@@ -24,7 +24,7 @@ public:
 	static Cgdi* GetInstance();
 
 	//初期化
-	void Initialize(DX::DeviceResources* deviceResources, float width, float height);
+	void Initialize(DX::DeviceResources* deviceResources, DirectX::CommonStates* commonStates, float width, float height);
 
 	// スクリーンサイズを設定する関数
 	void SetScreenSize(float width, float height);
@@ -41,7 +41,7 @@ public:
 	// コモンステートを取得する関数
 	DirectX::CommonStates* GetStates() const
 	{
-		return m_states.get(); 
+		return m_states; 
 	}
 
 	// スプライトバッチを取得する関数
@@ -58,7 +58,7 @@ private:
 	DX::DeviceResources* m_deviceResources;
 
 	// コモンステート
-	std::unique_ptr<DirectX::CommonStates> m_states;
+	DirectX::CommonStates* m_states;
 
 	// 入力レイアウト
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_inputLayout;

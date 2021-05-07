@@ -74,6 +74,7 @@ void Character3::Initialize()
 	//前方向の設定
 	SetFrontVector(Character3Params::FRONT_VECTOR);
 
+
 	//体力の設定
 	SetHP(Character3Params::GetInstance()->MAX_HP);
 	//体力の最大値の設定
@@ -84,7 +85,9 @@ void Character3::Initialize()
 	SetMaxBoostCap(Character3Params::GetInstance()->BOOST_CAP_MAX);
 	//体力のバッファの設定
 	SetHPBuffer(GetHP());
-
+	//ヒットエフェクトの発生位置の座標設定
+	SetHitEffectPos(DirectX::SimpleMath::Vector3(
+		GetPos().x, GetPos().y + Character3Params::HIT_EFFECT_POS_Y, GetPos().z));
 	//Y軸の角度設定
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_1)SetAngleY(Character3Params::ANGLE_Y);
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_2)SetAngleY(-180.0f+Character3Params::ANGLE_Y);
@@ -111,6 +114,10 @@ void Character3::Update(DX::StepTimer const& timer)
 {
 	//基底クラスの更新
 	CharacterBase::Update(timer);
+
+	//ヒットエフェクトの発生位置の座標設定
+	SetHitEffectPos(DirectX::SimpleMath::Vector3(
+		GetPos().x, GetPos().y + Character3Params::HIT_EFFECT_POS_Y, GetPos().z));
 
 	//ブースト移動でなければブースト容量を増やす
 	if (GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)

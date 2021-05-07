@@ -36,13 +36,13 @@ SceneManager::~SceneManager()
 //引数:デバイスリソースのポインタ,ウインドウ
 //戻り値:なし
 //////////////////////////
-void SceneManager::Initialize(HWND window, DX::DeviceResources* pDeviceResources, DirectX::CommonStates* pStates)
+void SceneManager::Initialize()
 {
-	m_pDeviceResources = pDeviceResources;
-	m_window = window;
-	m_pStates = pStates;
+	//m_pDeviceResources = pDeviceResources;
+	//m_window = window;
+	//m_pStates = pStates;
 	//if(m_pScene != nullptr)
-	//	m_pScene->Initialize(m_window, m_pDeviceResources);
+	//	m_pScene->Initialize();
 }
 
 ///////////////////////////

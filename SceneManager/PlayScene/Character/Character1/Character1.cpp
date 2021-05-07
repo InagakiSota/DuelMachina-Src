@@ -18,8 +18,6 @@
 
 #include "Adx2.h"
 
-//#include "Adx2.h"
-//#include "Test_acf.h"
 #include "CueSheet_0.h"
 #include "../../../../FrameWork/FbxResourceManager/FbxResourceManager.h"
 #include "../CharacterID.h"
@@ -28,7 +26,8 @@
 
 //コンストラクタ
 Character1::Character1(ePLAYER_ID playerID)
-	:	//基底クラスのコンストラクタ
+	:	
+	//基底クラスのコンストラクタ
 	CharacterBase::CharacterBase(playerID)
 {
 	//自身のキャラクターのIDを設定
@@ -96,6 +95,11 @@ void Character1::Initialize()
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_1)SetAngleY(Character1Params::ANGLE_Y);
 	if (GetPlayerID() == ePLAYER_ID::PLAYER_2)SetAngleY(-Character1Params::ANGLE_Y);
 
+	//ヒットエフェクトの発生位置の座標設定
+	SetHitEffectPos(DirectX::SimpleMath::Vector3(
+		GetPos().x, GetPos().y, GetPos().z));
+
+
 	//座標を行列に変換
 	DirectX::SimpleMath::Matrix trans = DirectX::SimpleMath::Matrix::CreateTranslation(GetPos());
 	//サイズを行列に変換
@@ -105,6 +109,7 @@ void Character1::Initialize()
 	DirectX::SimpleMath::Matrix rotY = DirectX::SimpleMath::Matrix::CreateRotationY(GetAngleY());
 	//ワールド行列に加算
 	SetWorldMatrix(scale * rotY* trans);
+	
 
 	//モデルの更新
 	//m_pModel->Update(m_world);
@@ -122,6 +127,11 @@ void Character1::Update(DX::StepTimer const& timer)
 {
 	//基底クラスの更新
 	CharacterBase::Update(timer);
+
+	//ヒットエフェクトの発生位置の座標設定
+	SetHitEffectPos(DirectX::SimpleMath::Vector3(
+		GetPos().x, GetPos().y, GetPos().z));
+
 	//ブースト移動でなければブースト容量を増やす
 	if (GetCharaState() != eCHARACTER_STATE::BOOST_MOVE)
 	{
@@ -133,6 +143,7 @@ void Character1::Update(DX::StepTimer const& timer)
 		}
 	}
 	//ブーストエフェクトマネージャーの更新
+	//キャラクターが右向きの場合
 	if (GetFrontVector().x > 0)
 	{
 		GetBoostEffectManager()->Update(timer,
@@ -141,6 +152,7 @@ void Character1::Update(DX::StepTimer const& timer)
 				GetPos().y + Character1Params::BOOST_EFFECT_POS_Y,
 				0.0f), Character1Params::BOOST_EFFECT_ANGLE_LEFT);
 	}
+	//キャラクターが左向きの場合
 	else
 	{
 		GetBoostEffectManager()->Update(timer,

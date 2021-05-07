@@ -44,6 +44,8 @@ const float Character3Params::BOOST_EFFECT_ANGLE_LEFT = 190.0f;
 //ブーストエフェクトの角度(右側)
 const float Character3Params::BOOST_EFFECT_ANGLE_RIGHT = -10.0f;
 
+//ヒットエフェクトのY座標
+const float Character3Params::HIT_EFFECT_POS_Y = -1.3f;
 
 //コンストラクタ
 Character3Params::Character3Params()

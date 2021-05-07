@@ -110,7 +110,10 @@ void TitleScene::Update(DX::StepTimer const& timer)
 		m_pushSpaceBlindFlag = !m_pushSpaceBlindFlag;
 		m_pushSpaceBlindTimer = 0.0f;
 	}
-	
+
+	//フェードマネージャーの更新
+	FadeManager::GetInstance()->Update(timer, GetFadeTimer());
+
 	//シーンのステート
 	switch (GetSceneState())
 	{
@@ -148,7 +151,10 @@ void TitleScene::Update(DX::StepTimer const& timer)
 			//フェードのタイマーを加算する
 			SetFadeTimer(GetFadeTimer() + static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
 			//タイマーが規定値を越えたらキャラクターセレクトシーンに遷移
-			if(GetFadeTimer() >= 1.0f)SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
+			if (GetFadeTimer() >= 1.0f)
+			{
+				SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
+			}
 
 			break;
 		}
@@ -156,8 +162,6 @@ void TitleScene::Update(DX::StepTimer const& timer)
 			break;
 	}
 	
-	//フェードマネージャーの更新
-	FadeManager::GetInstance()->Update(timer, GetFadeTimer());
 }
 
 ///////////////////////////

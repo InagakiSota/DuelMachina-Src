@@ -121,9 +121,9 @@ public:
 
 private:
 
-	//デバイス
+	//デバイスリソース
 	DX::DeviceResources* m_pDeviceResources;
-
+	//コモンステート
 	DirectX::CommonStates* m_pStates;
 
 	//キートラッカー

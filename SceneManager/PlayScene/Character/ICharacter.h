@@ -67,6 +67,10 @@ public:
 	virtual void SetStartPos(const DirectX::SimpleMath::Vector3& startPos) = 0;
 	//初期座標の取得
 	virtual DirectX::SimpleMath::Vector3 GetStartPos() = 0;
+	//ヒットエフェクトの発生位置の座標の取得
+	virtual DirectX::SimpleMath::Vector3 GetHitEffectPos() = 0;
+	//ヒットエフェクトの発生位置の座標の設定
+	virtual void SetHitEffectPos(const DirectX::SimpleMath::Vector3& hitEffectPos) = 0;
 	//足元の当たり判定の箱の取得
 	virtual Collision::BoxCollision GetLegCollBox() = 0;
 	//足元の当たり判定の箱の設定

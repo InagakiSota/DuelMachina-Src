@@ -50,11 +50,9 @@ const DirectX::SimpleMath::Vector4 CharaSelectScene::MODEL_COLOR = DirectX::Simp
 
 //コンストラクタ
 CharaSelectScene::CharaSelectScene()
+	:SceneBase::SceneBase()
 {
-	m_pDeviceResources = nullptr;
-	m_pKeyTracker = nullptr;
 	m_pSelectSprite = nullptr;
-	m_sceneState = eSCENE_STATE::FADE_IN;
 	m_isStop = false;
 	m_isManualDown = m_isManualUp = false;
 	m_modelAngleY = 0.0f;
@@ -81,23 +79,8 @@ CharaSelectScene::~CharaSelectScene()
 //////////////////////////
 void CharaSelectScene::Initialize()
 {
-	m_pDeviceResources = gdi->GetDeviceResources();
-	m_pStates = gdi->GetStates();
-
-	auto device = m_pDeviceResources->GetD3DDevice();
-	auto context = m_pDeviceResources->GetD3DDeviceContext();
-
-	//ビュー行列を作成する
-	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY);
-
-	//画面サイズを取得する
-	RECT outputSize = m_pDeviceResources->GetOutputSize();
-	UINT backBufferWidth = std::max<UINT>(outputSize.right - outputSize.left, 1);
-	UINT backBufferHeight = std::max<UINT>(outputSize.bottom - outputSize.top, 1);
-
-	//射影行列を作る
-	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PI / 4.0f, float(backBufferWidth) / float(backBufferHeight), 0.01f, 1000.0f);
+	//基底クラスの初期化処理
+	SceneBase::Initialize();
 
 	//各キャラクターのモデルの読み込み
 	m_pCharacter1Model = FbxResourceManager::GetInstance()->GetModel(eCHARACTER_ID::CHARACTER_1);
@@ -116,11 +99,6 @@ void CharaSelectScene::Initialize()
 		m_modelWorld[i] = DirectX::SimpleMath::Matrix::CreateScale(MODEL_SIZE[i]) *  DirectX::SimpleMath::Matrix::CreateTranslation(DirectX::SimpleMath::Vector3::Zero) *
 			rotY * DirectX::SimpleMath::Matrix::CreateTranslation(MODEL_POS) * rotY;
 	}
-
-	DebugFont::GetInstance()->Create(device, context);
-
-	//キートラッカーの読み込み
-	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
 
 	//背景画像の読み込み
 	m_pSelectSprite = std::make_unique<Sprite2D>();
@@ -173,13 +151,13 @@ void CharaSelectScene::Initialize()
 	//カーソルの画像の初期座標設定
 	m_pCursolSprite->Update(CHARA1_ICON_POS.x - CURSOL_POS, CHARA1_ICON_POS.y - CURSOL_POS);
 
-	m_fadeTimer = 1.0f;
-	m_sceneState = eSCENE_STATE::FADE_IN;
+	SetFadeTimer(1.0f);
+	SetSceneState(eSCENE_STATE::FADE_IN);
 
 	//現在選択しているキャラクターの初期設定
 	m_nowSelect = static_cast<int>(eCHARACTER_ID::CHARACTER_1);
 
-	m_soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_SELECTSCENE_BGM);
+	SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_SELECTSCENE_BGM));
 	m_cursorColor = DirectX::SimpleMath::Vector4(0.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -191,7 +169,7 @@ void CharaSelectScene::Initialize()
 void CharaSelectScene::Update(DX::StepTimer const & timer)
 {
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
-	m_pKeyTracker->Update(keyState);
+	GetKeyTracker()->Update(keyState);
 
 	//キャラクターのアイコンの座標設定
 	m_pCharacterSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_1)]->Update(CHARA1_ICON_POS);
@@ -202,19 +180,22 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 
 	m_cursorColor.x = cosf((float)timer.GetTotalSeconds()*3.0f);
 
+	//フェードマネージャーの更新
+	FadeManager::GetInstance()->Update(timer, GetFadeTimer());
+
 	//シーンのステート
-	switch (m_sceneState)
+	switch (GetSceneState())
 	{
 		//フェードイン
-		case SceneBase::eSCENE_STATE::FADE_IN:
+		case eSCENE_STATE::FADE_IN:
 		{
-			m_fadeTimer -= static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-			if (m_fadeTimer <= 0.0f)m_sceneState = eSCENE_STATE::MAIN;
+			SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds())* 2.0f);
+			if (GetFadeTimer() <= 0.0f)SetSceneState(eSCENE_STATE::MAIN);
 
 			break;
 		}
 		//メイン
-		case SceneBase::eSCENE_STATE::MAIN:
+		case eSCENE_STATE::MAIN:
 		{
 
 			//操作説明
@@ -237,14 +218,14 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 			if (m_isStop != true)
 			{
 				//左右キー入力でカーソル移動
-				if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Right))
+				if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Right))
 				{
 					m_nowSelect++;
 					//SE再生
 					ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
 
 				}
-				else if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Left))
+				else if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Left))
 				{
 					m_nowSelect--;
 					//SE再生
@@ -294,9 +275,9 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 				}
 
 				//スペースキー入力でフェードアウト		
-				if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Space))
+				if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 				{
-					m_sceneState = eSCENE_STATE::FADE_OUT;
+					SetSceneState(eSCENE_STATE::FADE_OUT);
 					//SE再生
 					ADX2::GetInstance().Play(CRI_CUESHEET_0_SUBMIT);
 
@@ -304,13 +285,13 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 				}
 
 				//エスケープキー入力でタイトルに戻る
-				if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Escape))
+				if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape))
 				{
 					SceneManager::GetInstance()->SetScene(eSCENE_ID::TITLE_SCENE);
 					//SE再生
 					ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
 
-					ADX2::GetInstance().Stop(m_soundID);
+					ADX2::GetInstance().Stop(GetSoundID());
 
 				}
 
@@ -319,10 +300,10 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 			break; 
 		}
 		//フェードアウト
-		case SceneBase::eSCENE_STATE::FADE_OUT:
+		case eSCENE_STATE::FADE_OUT:
 		{
-			m_fadeTimer += static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-			if (m_fadeTimer >= 1.0f)
+			SetFadeTimer(GetFadeTimer() + static_cast<float>(timer.GetElapsedSeconds())* 2.0f);
+			if (GetFadeTimer() >= 1.0f)
 			{
 				//プレイヤ－２のキャラクターをランダムで選択
 				switch (rand() % static_cast<int>(eCHARACTER_ID::OVER_ID))
@@ -352,7 +333,7 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 					default:
 						break;
 				}
-				ADX2::GetInstance().Stop(m_soundID);
+				ADX2::GetInstance().Stop(GetSoundID());
 
 				//プレイシーンへの遷移
 				SceneManager::GetInstance()->SetScene(eSCENE_ID::PLAY_SCENE);
@@ -366,8 +347,6 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 	}
 	
 
-	//フェードマネージャーの更新
-	FadeManager::GetInstance()->Update(timer, m_fadeTimer);
 }
 
 ///////////////////////////
@@ -377,10 +356,6 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 //////////////////////////
 void CharaSelectScene::Render()
 {
-	DebugFont::GetInstance()->Print(500, 500, L"CharacterSelect", DirectX::Colors::Gainsboro);
-
-	DebugFont::GetInstance()->Draw();
-
 	//背景画像の描画
 	m_pSelectSprite->Draw();
 
@@ -401,7 +376,7 @@ void CharaSelectScene::Render()
 			m_pCharaInfoSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_1)]
 				->Draw(true);
 			//モデルの描画
-			m_pCharacter1Model->Draw(m_modelWorld[static_cast<int>(eCHARACTER_ID::CHARACTER_1)], m_view, m_proj, MODEL_COLOR);
+			m_pCharacter1Model->Draw(m_modelWorld[static_cast<int>(eCHARACTER_ID::CHARACTER_1)], GetView(), GetProj(), MODEL_COLOR);
 
 			break;
 		}
@@ -411,7 +386,7 @@ void CharaSelectScene::Render()
 			m_pCharaInfoSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_2)]
 				->Draw(true);
 			//モデルの描画
-			m_pCharacter2Model->Draw(m_modelWorld[static_cast<int>(eCHARACTER_ID::CHARACTER_2)], m_view, m_proj, MODEL_COLOR);
+			m_pCharacter2Model->Draw(m_modelWorld[static_cast<int>(eCHARACTER_ID::CHARACTER_2)], GetView(), GetProj(), MODEL_COLOR);
 			break;
 		}
 
@@ -420,7 +395,7 @@ void CharaSelectScene::Render()
 			m_pCharaInfoSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_3)]
 				->Draw(true);
 			//モデルの描画
-			m_pCharacter3Model->Draw(m_modelWorld[static_cast<int>(eCHARACTER_ID::CHARACTER_3)], m_view, m_proj, MODEL_COLOR);
+			m_pCharacter3Model->Draw(m_modelWorld[static_cast<int>(eCHARACTER_ID::CHARACTER_3)], GetView(), GetProj(), MODEL_COLOR);
 			break;
 		}
 
@@ -456,7 +431,7 @@ void CharaSelectScene::Finalize()
 	m_pManualSprite->Reset();
 
 
-	ADX2::GetInstance().Stop(m_soundID);
+	ADX2::GetInstance().Stop(GetSoundID());
 
 }
 
@@ -468,7 +443,7 @@ void CharaSelectScene::Finalize()
 void CharaSelectScene::Manual()
 {
 	//操作説明表示中にXキー入力で元の画面に戻る
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::X) && m_isStop == true)
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::X) && m_isStop == true)
 	{
 		m_isManualDown = false;
 		m_isManualUp = true;
@@ -479,7 +454,7 @@ void CharaSelectScene::Manual()
 	}
 
 	//Xキー入力で操作説明の表示
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::X) && m_isStop == false)
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::X) && m_isStop == false)
 	{
 		m_isStop = true;
 		m_isManualDown = true;

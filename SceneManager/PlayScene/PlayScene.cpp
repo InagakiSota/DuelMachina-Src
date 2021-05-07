@@ -65,21 +65,17 @@
 //コンストラクタ
 PlayScene::PlayScene()
 	:m_floorBox{},
-	m_pDebugCamera(nullptr),
 	m_pFloor(nullptr),
 	m_floorWorld{},
 	m_space(nullptr),
 	m_spaceWorld{},
 	//m_pAttackManager(nullptr),
-	m_pShadowManager{}
+	m_pShadowManager{},
+	//基底クラスのコンストラクタ
+	SceneBase::SceneBase()
 {
-	m_pDeviceResources = nullptr;
-	m_pKeyTracker = nullptr;
 
-	m_sceneState = eSCENE_STATE::FADE_IN;
 	m_countdownTimer = 0.0f;
-	m_cameraPos.Zero;
-	m_fadeTimer = 1.0f;
 
 	m_isStop = false;
 	m_isManualUp = m_isManualDown = m_isManualRight = m_isManualLeft = false;
@@ -112,7 +108,6 @@ PlayScene::~PlayScene()
 
 
 
-	m_pDeviceResources = nullptr;
 }
 
 ///////////////////////////
@@ -122,50 +117,24 @@ PlayScene::~PlayScene()
 //////////////////////////
 void PlayScene::Initialize()
 {
-	m_pDeviceResources = gdi->GetDeviceResources();
-	m_pStates = gdi->GetStates();
+	//基底クラスの初期化関数
+	SceneBase::Initialize();
 
-	ID3D11Device1* device = m_pDeviceResources->GetD3DDevice();
-
-	// TODO: Initialize device dependent objects here (independent of window size).
-	device;
-
-	auto context = m_pDeviceResources->GetD3DDeviceContext();
-
-	m_spaceWorld = DirectX::SimpleMath::Matrix::Identity;
-
-	//ビュー行列を作成する
-	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY);
-
-	//画面サイズを取得する
-	RECT outputSize = m_pDeviceResources->GetOutputSize();
-	UINT backBufferWidth = std::max<UINT>(outputSize.right - outputSize.left, 1);
-	UINT backBufferHeight = std::max<UINT>(outputSize.bottom - outputSize.top, 1);
-
-	//射影行列を作る
-	m_proj = DirectX::SimpleMath::Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PI / 4.0f, float(backBufferWidth) / float(backBufferHeight), 0.01f, 1000.0f);
-	
 	//m_pDebugCamera = std::make_unique<DebugCamera>();
 
-	//シーンのステートの初期化
-	m_sceneState = eSCENE_STATE::FADE_IN;
-
 	//攻撃のマネージャーの初期化
-	AttackManager::GetInstance()->Initialize(m_pDeviceResources);
-
+	AttackManager::GetInstance()->Initialize(gdi->GetDeviceResources());
+	
+	//天球の読み込み
 	m_space = std::make_unique<ModelObject>();
-	m_space->Create(m_pDeviceResources, L"Resources/Models/Space.cmo");
-
-
-	DebugFont::GetInstance()->Create(device, context);
-
+	m_space->Create(gdi->GetDeviceResources(), L"Resources/Models/Space.cmo");
+	
 	m_isResult = false;
 
 	//床の作成
 	m_floorBox.pos = DirectX::SimpleMath::Vector3(0.0f, -2.0f, 0.0f);
 	m_floorBox.size_h = DirectX::SimpleMath::Vector3(5.0f, 0.25f, 1.0f);
-	m_pFloor = DirectX::GeometricPrimitive::CreateBox(m_pDeviceResources->GetD3DDeviceContext(), m_floorBox.size_h*2);
+	m_pFloor = DirectX::GeometricPrimitive::CreateBox(gdi->GetDeviceResources()->GetD3DDeviceContext(), m_floorBox.size_h*2);
 	m_floorWorld = DirectX::SimpleMath::Matrix::CreateTranslation(m_floorBox.pos);
 
 	//プレイヤーの作成
@@ -204,8 +173,6 @@ void PlayScene::Initialize()
 		m_pShadowManager[i]->Initialize(1,10,DirectX::SimpleMath::Vector3::Zero);
 
 	}
-	//キートラッカーの作成
-	m_pKeyTracker = std::make_unique<DirectX::Keyboard::KeyboardStateTracker>();
 
 	//カメラの注視点の初期化
 	m_targetPos = DirectX::SimpleMath::Vector3::Zero;
@@ -219,8 +186,6 @@ void PlayScene::Initialize()
 
 	//制限時間の初期化
 	m_time = PlayScene::TIME_MAX;
-
-	m_fadeTimer = 1.0f;
 
 	//敵のポインタ取得
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]);
@@ -286,19 +251,20 @@ void PlayScene::Initialize()
 void PlayScene::Update(DX::StepTimer const& timer)
 {
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
-	m_pKeyTracker->Update(keyState);
 
+	//基底クラスの更新関数
+	SceneBase::Update(timer);
+
+	//経過時間を加算する
 	m_totalSeconds = static_cast<float>(timer.GetTotalSeconds());
 
-	//m_pDebugCamera->update();
 
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
+	SetView(
+		DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), 
+			m_targetPos, DirectX::SimpleMath::Vector3::UnitY));
 	//m_view = m_pDebugCamera->getViewMatrix();
 
 	float time = float(timer.GetTotalSeconds());
-
-
-	//m_pHitEffectManager->SetRenderState(m_view, m_proj);
 
 
 	for (int i = 0; i < PLAYER_NUM; i++)
@@ -317,26 +283,31 @@ void PlayScene::Update(DX::StepTimer const& timer)
 	//UIクラスの更新
 	m_pPlaySceneUI->Update();
 
+	//フェードマネージャーの更新
+	FadeManager::GetInstance()->Update(timer, GetFadeTimer());
+
 	//シーンのステート
 	if (m_isStop == false)
 	{
 		//天球の更新
 		m_space->Update(m_spaceWorld);
 
-		switch (m_sceneState)
+		switch (GetSceneState())
 		{
 			//フェードイン
-			case SceneBase::eSCENE_STATE::FADE_IN:
+			case eSCENE_STATE::FADE_IN:
 			{
-				m_fadeTimer -= static_cast<float>(timer.GetElapsedSeconds()) * 2.0f;
 
-				if (m_fadeTimer <= 0.0f)
+				//フェードのタイマーを加算する
+				SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+
+				if (GetFadeTimer() <= 0.0f)
 				{	
 					//BGMの再生
-					m_soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM);
+					SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM));
 
 					//LoadDisplay::GetInstance()->Update(false);
-					m_sceneState = eSCENE_STATE::MAIN;
+					SetSceneState(eSCENE_STATE::MAIN);
 				}
 
 				for (int i = 0; i < PLAYER_NUM; i++)
@@ -350,7 +321,7 @@ void PlayScene::Update(DX::StepTimer const& timer)
 				break;
 			}
 			//メイン
-			case SceneBase::eSCENE_STATE::MAIN:
+			case eSCENE_STATE::MAIN:
 			{
 				switch (m_playSceneState)
 				{
@@ -484,8 +455,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 							//プレイヤーの床との当たり判定
 							m_pPlayer[i]->HitFloor(m_floorBox);
 
-							
-							//m_pPlayer[i]->Ready(timer);
 
 						}
 						if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() > m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
@@ -511,9 +480,9 @@ void PlayScene::Update(DX::StepTimer const& timer)
 							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
 
 						m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
-						if (m_countdownTimer >= PlayScene::ROUND_CHANGE_TIME || keyState.IsKeyDown(DirectX::Keyboard::Keys::Space))
+						if (m_countdownTimer >= PlayScene::ROUND_CHANGE_TIME || GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space))
 						{
-							m_sceneState = eSCENE_STATE::FADE_OUT;
+							SetSceneState(eSCENE_STATE::FADE_OUT);
 						}
 
 						break;
@@ -528,13 +497,16 @@ void PlayScene::Update(DX::StepTimer const& timer)
 				break;
 			}
 			//フェードアウト
-			case SceneBase::eSCENE_STATE::FADE_OUT:
+			case eSCENE_STATE::FADE_OUT:
 			{
-				if(m_isResult == false)m_fadeTimer += static_cast<float>(timer.GetElapsedSeconds())* 2.0f;
-				if (m_fadeTimer >= 1.0f)
+				//リザルトに遷移しなければそのままフェードアウト
+				if (m_isResult == false)
 				{
-					//SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
-					//m_sceneState = eSCENE_STATE::FADE_IN;
+					SetFadeTimer(GetFadeTimer() + static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+				}
+				//フェードアウトしたらプレイシーンに戻る
+				if (GetFadeTimer() >= 1.0f)
+				{
 					//どちらかのプレイヤーが２本勝利するまで繰り返す
 					if (m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)] < WIN_NUM &&
 						m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)] < WIN_NUM)
@@ -576,7 +548,8 @@ void PlayScene::Update(DX::StepTimer const& timer)
 
 
 					}
-					ADX2::GetInstance().Stop(m_soundID);
+					//BGM停止
+					ADX2::GetInstance().Stop(GetSoundID());
 
 				}
 				break;
@@ -586,14 +559,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 		}
 	}
 
-	////ESCキー入力でタイトルに戻る
-	//if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Escape))
-	//{
-	//	SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
-	//	//SE再生
-	//	ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
-	//	ADX2::GetInstance().Stop(soundID);
-
 
 	//}
 
@@ -601,8 +566,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 	Menu();
 	//リザルト
 	if(m_isResult == true)Result(timer);
-	//フェードマネージャーの更新
-	FadeManager::GetInstance()->Update(timer, m_fadeTimer);
 }
 
 ///////////////////////////
@@ -613,28 +576,28 @@ void PlayScene::Update(DX::StepTimer const& timer)
 void PlayScene::Render()
 {
 	//天球の描画
-	m_space->Render(m_view, m_proj);
+	m_space->Render(GetView(), GetProj());
 
 	//床の描画
 	if(m_isResult == false)
-		m_pFloor->Draw(m_floorWorld, m_view, m_proj, DirectX::Colors::Brown);
+		m_pFloor->Draw(m_floorWorld, GetView(), GetProj(), DirectX::Colors::Brown);
 
 	for (int i = 0; i < PLAYER_NUM; i++)
 	{
 		//足元の影のエフェクトの描画
-		m_pShadowManager[i]->Render(m_view,m_proj);
+		m_pShadowManager[i]->Render(GetView(), GetProj());
 	}
 
 
 	//プレイヤー１の描画
 	if (m_isResult == false || m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)] < WIN_NUM)
 	{
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Render(m_view, m_proj);
+		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Render(GetView(), GetProj());
 	}
 	//プレイヤー２の描画
 	if (m_isResult == false || m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)] < WIN_NUM)
 	{
-		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Render(m_view, m_proj);
+		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Render(GetView(), GetProj());
 	}
 
 	//UIの描画
@@ -712,7 +675,6 @@ void PlayScene::Finalize()
 
 	}
 
-
 	m_pManualCursorSpriteLeft->Reset();
 	m_pManualCursorSpriteLeft.reset();
 
@@ -729,7 +691,7 @@ void PlayScene::Finalize()
 
 	//delete m_pFbxModel;
 	//m_pFbxModel = nullptr;
-	ADX2::GetInstance().Stop(m_soundID);
+	ADX2::GetInstance().Stop(GetSoundID());
 
 	//UIクラスの終了処理
 	m_pPlaySceneUI->Finalize();
@@ -750,18 +712,17 @@ void PlayScene::Reset()
 		m_pPlayer[i]->Reset();
 	}
 
-
 	//攻撃マネージャーのリセット
 	for (int i = 0; i < AttackManager::ATTACK_NUM; i++)
 	{
 		AttackManager::GetInstance()->Reset(i);
 	}
 	//フェードイン状態にする
-	m_sceneState = eSCENE_STATE::FADE_IN;
+	SetSceneState(eSCENE_STATE::FADE_IN);
 	//プレイシーンの状態をカウントダウンにする
 	m_playSceneState = ePLAY_SCENE_STATE::COUNT_DOWN;
 	//フェードのタイマーを設定
-	m_fadeTimer = 1.0f;
+	SetFadeTimer(1.0f);
 	//カウントダウンのタイマーを初期化
 	m_countdownTimer = 0.0f;
 	//制限時間を最大値に設定
@@ -769,7 +730,7 @@ void PlayScene::Reset()
 
 	//カメラの注視点の初期化
 	m_targetPos = DirectX::SimpleMath::Vector3::Zero;
-	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
+	SetCameraPos(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f));
 
 
 	//UIクラスのリセット
@@ -785,7 +746,7 @@ void PlayScene::Reset()
 void PlayScene::Manual()
 {
 	//操作説明表示中にESCキーでゲームに戻る
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == true)
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == true)
 	{
 		//下降フラグを消す
 		m_isManualDown = false;
@@ -798,7 +759,7 @@ void PlayScene::Manual()
 	}
 
 	//左右入力で移動フラグを立てる
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Left) && 
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Left) &&
 		m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x < 0.0f)
 	{
 		m_isManualLeft = false;
@@ -808,7 +769,7 @@ void PlayScene::Manual()
 		ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
 
 	}
-	else if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Right) &&
+	else if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Right) &&
 		m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
 	{
 		m_isManualRight = false;
@@ -911,7 +872,7 @@ void PlayScene::Manual()
 //////////////////////////
 void PlayScene::Menu()
 {
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == false && m_isResult == false)
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == false && m_isResult == false)
 	{
 		//SE再生
 		if (m_isStop == false)
@@ -926,18 +887,21 @@ void PlayScene::Menu()
 	//カーソルの座標設定
 	switch (static_cast<eMENU_CURSOR>(m_menuCursor))
 	{
+		//マニュアル
 		case PlayScene::eMENU_CURSOR::MANUAL:
 		{
 			m_pMenuCursorSprite->
 				Update(MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::MANUAL)].x - cosf(m_totalSeconds * 6.0f) * 10.0f, MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::MANUAL)].y);
 			break;
 		}
+		//キャラクターセレクト
 		case PlayScene::eMENU_CURSOR::CHARA_SELECT:
 		{
 			m_pMenuCursorSprite->
 				Update(MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::CHARA_SELECT)].x - cosf(m_totalSeconds * 6.0f) * 10.0f, MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::CHARA_SELECT)].y);
 			break;
 		}
+		//ゲーム終了
 		case PlayScene::eMENU_CURSOR::EXIT:
 		{
 			m_pMenuCursorSprite->
@@ -949,7 +913,8 @@ void PlayScene::Menu()
 	}
 
 	//キー入力でカーソル移動
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Down) && m_isStop == true && m_isManualDisplay == false)
+	//上入力
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Down) && m_isStop == true && m_isManualDisplay == false)
 	{
 		m_menuCursor++;
 		if (m_menuCursor >= static_cast<int>(eMENU_CURSOR::OVER_ID))
@@ -961,7 +926,8 @@ void PlayScene::Menu()
 		ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
 
 	}
-	else if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Up) && m_isStop == true && m_isManualDisplay == false)
+	//下入力
+	else if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Up) && m_isStop == true && m_isManualDisplay == false)
 	{
 		m_menuCursor--;
 		if (m_menuCursor <= static_cast<int>(eMENU_CURSOR::NONE))
@@ -974,7 +940,7 @@ void PlayScene::Menu()
 	}
 	
 	//スペースキー入力で決定
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Space) && m_isStop == true && m_isManualDisplay == false)
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space) && m_isStop == true && m_isManualDisplay == false)
 	{
 		//SE再生
 		ADX2::GetInstance().Play(CRI_CUESHEET_0_SUBMIT);
@@ -997,8 +963,8 @@ void PlayScene::Menu()
 			{
 				SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
 				//SE再生
-				ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
-				ADX2::GetInstance().Stop(m_soundID);
+				//ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
+				//ADX2::GetInstance().Stop(GetSoundID());
 				break;
 			}
 
@@ -1027,43 +993,48 @@ void PlayScene::Result(DX::StepTimer const& timer)
 {
 	if (m_isResult == true)
 	{
-		m_fadeTimer = 0.0f;
+		SetFadeTimer(0.0f);
 
+		//プレイヤー１勝利
 		if (m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)] >
 			m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)])
 		{
+			//プレイヤー２の座標をカメラ外に持っていく
 			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetPos(
 				DirectX::SimpleMath::Vector3(10.0f, 10.0f, 10.0f));
-
+			//プレイヤー１を勝利状態にする
 			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetCharaState(eCHARACTER_STATE::WIN);
 
 			//m_pPlayer[0]->ChangeAnimation(14);
-			m_cameraPos = DirectX::SimpleMath::Vector3(
+			//カメラの座標設定
+			SetCameraPos(DirectX::SimpleMath::Vector3(
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().x,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().y - 1.0f,
 				3.0f
-			);
-
+			));
+			//注視点を変える
 			m_targetPos = DirectX::SimpleMath::Vector3(
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().x,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().y,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().z);
 
 		}
+		//プレイヤー２勝利
 		else
 		{
+			//プレイヤー１の座標をカメラ外に持っていく
 			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetPos(
 				DirectX::SimpleMath::Vector3(10.0f, 10.0f, 10.0f));
 
-
+			//プレイヤー２を勝利状態にする
 			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetCharaState(eCHARACTER_STATE::WIN);
 			//m_pPlayer[0]->ChangeAnimation(14);
-			m_cameraPos = DirectX::SimpleMath::Vector3(
+			SetCameraPos(DirectX::SimpleMath::Vector3(
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().x,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().y - 1.0f,
 				3.0f
-			);
-
+			));
+			//注視点を変える
 			m_targetPos = DirectX::SimpleMath::Vector3(
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().x,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().y,
@@ -1072,7 +1043,7 @@ void PlayScene::Result(DX::StepTimer const& timer)
 		}
 	}
 	//リザルト中にスペースキー入力でキャラクターセレクトに戻る
-	if (m_pKeyTracker->IsKeyPressed(DirectX::Keyboard::Keys::Space) && m_isResult == true)
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space) && m_isResult == true)
 	{
 		SceneManager::GetInstance()->SetScene(eSCENE_ID::CHARA_SELECT_SCENE);
 	}
