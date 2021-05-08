@@ -19,7 +19,9 @@ public:
 	//更新
 	void Update() override {}
 
-protected:
+private:
 	//キャラクターのポインタ
 	CharacterBase* m_pCharacter;
+
+
 };

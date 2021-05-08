@@ -23,8 +23,5 @@ public:
 	//終了処理
 	void Finalize() override {}
 
-protected:
-	//キャラクターの状態のポインタの配列
-	std::unique_ptr<CharacterStateBase> m_pCharacterStateArray[static_cast<int>(eCHARACTER_STATE::MAX_NUM)];
 
 };

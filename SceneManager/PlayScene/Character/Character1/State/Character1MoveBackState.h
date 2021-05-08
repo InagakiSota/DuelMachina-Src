@@ -23,5 +23,8 @@ public:
 	void Initialize(CharacterBase* pCharacter) override;
 	//更新
 	void Update() override;
+private:
+	//キャラクターのポインタ
+	CharacterBase* m_pCharacter;
 
 };

@@ -33,5 +33,8 @@ private:
 	static const float BODY_COLL_BOX_POS_Y;
 	//頭の当たり判定のY座標
 	static const float HEAD_COLL_BOX_POS_Y;
+	//キャラクターのポインタ
+	CharacterBase* m_pCharacter;
+
 
 };

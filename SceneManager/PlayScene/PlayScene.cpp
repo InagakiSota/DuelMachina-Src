@@ -145,13 +145,11 @@ void PlayScene::Initialize()
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetStartPos(DirectX::SimpleMath::Vector3(-2.0f, 1.0f, 0.0f));
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetStartPos(DirectX::SimpleMath::Vector3(2.0f, 1.0f, 0.0f));
 
-
 	//メニューの画像読み込み
 	m_pMenuSprite = std::make_unique<Sprite2D>();
 	m_pMenuSprite->Create(L"Resources/Textures/Menu.png");
 	m_pMenuCursorSprite = std::make_unique<Sprite2D>();
 	m_pMenuCursorSprite->Create(L"Resources/Textures/menuCursol.png");
-
 
 	//UIクラスの読み込み
 	m_pPlaySceneUI = std::make_unique < PlaySceneUI>();
@@ -180,7 +178,6 @@ void PlayScene::Initialize()
 	//プレイシーンのステートを初期化
 	m_playSceneState = ePLAY_SCENE_STATE::COUNT_DOWN;
 
-
 	//ラウンド数の初期化
 	m_nowRound = eROUND::ROUND_1;
 
@@ -190,7 +187,6 @@ void PlayScene::Initialize()
 	//敵のポインタ取得
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]);
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]);
-
 
 	//操作説明の画像読み込み、初期座標設定
 	for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)

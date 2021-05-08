@@ -26,4 +26,9 @@ public:
 	void Finalize() override;
 	//ƒŠƒZƒbƒg
 	void Reset() override;
+
+
+private:
+	std::unique_ptr<CharacterAttackBase> m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::ATTACK_TYPE_NUM)];
+
 };

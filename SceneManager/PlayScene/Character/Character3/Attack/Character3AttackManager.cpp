@@ -28,7 +28,7 @@ Character3AttackManager::~Character3AttackManager()
 {
 	for (int i = 0; i < static_cast<int>(eATTACK_TYPE::ATTACK_TYPE_NUM); i++)
 	{
-		if (m_pCharacterAttackArray[i] != nullptr)delete m_pCharacterAttackArray[i];
+		if (m_pCharacterAttackArray[i] != nullptr) m_pCharacterAttackArray[i].reset();
 		m_pCharacterAttackArray[i] = nullptr;
 	}
 }
@@ -42,22 +42,22 @@ void Character3AttackManager::Initialize(CharacterBase * pCharacter)
 {
 	//各攻撃の読み込み
 	//弱ニュートラル
-	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_NEUTRAL)] = new Character3AttackWeakNeutral();
+	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_NEUTRAL)] = std::make_unique<Character3AttackWeakNeutral>();
 	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_NEUTRAL)]->Initialize(pCharacter);
 	//弱横
-	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_SIDE)] = new Character3AttackWeakSide();
+	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_SIDE)] = std::make_unique<Character3AttackWeakSide>();
 	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_SIDE)]->Initialize(pCharacter);
 	//弱下
-	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_BOTTOM)] = new Character3AttackWeakBottom();
+	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_BOTTOM)] = std::make_unique<Character3AttackWeakBottom>();
 	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::WEAK_BOTTOM)]->Initialize(pCharacter);
 	//中ニュートラル
-	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_NEUTRAL)] = new Character3AttackMiddleNeutral();
+	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_NEUTRAL)] = std::make_unique<Character3AttackMiddleNeutral>();
 	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_NEUTRAL)]->Initialize(pCharacter);
 	//中横
-	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_SIDE)] = new Character3AttackMiddleSide();
+	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_SIDE)] = std::make_unique<Character3AttackMiddleSide>();
 	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_SIDE)]->Initialize(pCharacter);
 	//中下
-	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_BOTTOM)] = new Character3AttackMiddleBottom();
+	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_BOTTOM)] = std::make_unique<Character3AttackMiddleBottom>();
 	m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::MIDDLE_BOTTOM)]->Initialize(pCharacter);
 }
 
@@ -72,6 +72,7 @@ void Character3AttackManager::Update()
 	{
 		if (m_pCharacterAttackArray[i] != nullptr)
 		{
+			//攻撃の配列の更新
 			m_pCharacterAttackArray[i]->Update();
 		}
 	}
@@ -88,6 +89,7 @@ void Character3AttackManager::Render(DirectX::SimpleMath::Matrix view, DirectX::
 	{
 		if (m_pCharacterAttackArray[i] != nullptr)
 		{
+			//攻撃の配列の描画
 			m_pCharacterAttackArray[i]->Render(view, proj);
 		}
 	}
@@ -104,10 +106,11 @@ void Character3AttackManager::Finalize()
 	{
 		if (m_pCharacterAttackArray[i] != nullptr)
 		{
+			//攻撃の配列の終了処理
 			m_pCharacterAttackArray[i]->Finalize();
 		}
 
-		delete m_pCharacterAttackArray[i];
+		m_pCharacterAttackArray[i].reset();
 		m_pCharacterAttackArray[i] = nullptr;
 	}
 }
@@ -123,6 +126,7 @@ void Character3AttackManager::Reset()
 	{
 		if (m_pCharacterAttackArray[i] != nullptr)
 		{
+			//攻撃の配列のリセット関数
 			m_pCharacterAttackArray[i]->Reset();
 		}
 	}

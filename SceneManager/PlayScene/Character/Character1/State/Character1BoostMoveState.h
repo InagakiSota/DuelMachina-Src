@@ -23,4 +23,7 @@ public:
 	//更新
 	void Update();
 
+private:
+	//キャラクターのポインタ
+	CharacterBase* m_pCharacter;
 };

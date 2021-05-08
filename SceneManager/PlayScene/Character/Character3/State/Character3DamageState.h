@@ -25,4 +25,7 @@ private:
 	static const float STATE_BACK_TIME;
 	//ノックバックの移動量の初期値
 	static const float KNOCK_BACK_VEL_START;
+	//キャラクターのポインタ
+	CharacterBase* m_pCharacter;
+
 };

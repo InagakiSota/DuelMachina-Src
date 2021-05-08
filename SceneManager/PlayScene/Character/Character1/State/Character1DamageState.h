@@ -27,4 +27,7 @@ private:
 	static const float KNOCK_BACK_VEL_START;
 	//ノックバックの移動量
 	static const float KNOCK_BACK_VEL;
+	//キャラクターのポインタ
+	CharacterBase* m_pCharacter;
+
 };

@@ -25,5 +25,7 @@ public:
 	void Update() override;
 
 private:
+	//キャラクターのポインタ
+	CharacterBase* m_pCharacter;
 
 };

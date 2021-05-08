@@ -31,6 +31,4 @@ public:
 	//ƒŠƒZƒbƒg
 	void Reset()override {}
 
-protected:
-	CharacterAttackBase* m_pCharacterAttackArray[static_cast<int>(eATTACK_TYPE::ATTACK_TYPE_NUM)];
 };
