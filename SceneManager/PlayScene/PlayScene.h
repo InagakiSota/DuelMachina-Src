@@ -10,6 +10,7 @@
 #include "Src\FrameWork\Collision\Collision.h"
 
 #include "GeometricPrimitive.h"
+#include "Manual/PlaySceneManual.h"
 
 //クラスの前方宣言
 class EffectManager;
@@ -122,6 +123,22 @@ public:
 		return m_nowRound;
 	}
 
+	//時間の取得
+	float GetTotalTime() const
+	{
+		return m_totalSeconds;
+	}
+
+	//操作説明画面の表示フラグの取得
+	bool GetIsManualDisplay()const
+	{
+		return m_isManualDisplay;
+	}
+	//操作説明画面の表示フラグの設定
+	void SetIsManualDisplay(const bool& isManualDisplay)
+	{
+		m_isManualDisplay = isManualDisplay;
+	}
 private:
 	//リセット
 	void Reset();
@@ -135,7 +152,6 @@ private:
 ////////////////////////////////////
 //変数・定数・列挙体
 
-
 private:
 	//プレイシーンのステート変数
 	ePLAY_SCENE_STATE m_playSceneState;
@@ -147,10 +163,6 @@ private:
 
 	DirectX::SimpleMath::Matrix m_spaceWorld;	//天球のワールド行列
 
-	//操作説明の画像の横幅
-	static const float MANUAL_SPRITE_WIDTH;
-	//操作説明の画像の高さ
-	static const float MANUAL_SPRITE_HEIGHT;
 	//制限時間の最大値
 	static const float TIME_MAX;
 	//タイムアップシーンの時間
@@ -214,13 +226,13 @@ private:
 
 	//体力のバッファ
 	int m_playerHpBuffer[PLAYER_NUM];
+	//ゲーム停止フラグ
+	bool m_isStop;
 
 	//操作説明画像
 	std::unique_ptr<Sprite2D> m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM)];
 	//操作説明の画像の座標
 	DirectX::SimpleMath::Vector2 m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM)];
-	//ゲーム停止フラグ
-	bool m_isStop;
 	//操作説明上昇フラグ
 	bool m_isManualUp;
 	//操作説明下降フラグ
@@ -235,7 +247,6 @@ private:
 	std::unique_ptr<Sprite2D> m_pManualCursorSpriteRight;
 	//操作説明のカーソルの画像(左)
 	std::unique_ptr<Sprite2D> m_pManualCursorSpriteLeft;
-
 	
 	//メニューの画像
 	std::unique_ptr<Sprite2D> m_pMenuSprite;
@@ -244,17 +255,6 @@ private:
 	//メニュー表示フラグ
 	bool m_isMenuDisplay;
 
-	//メニューのカーソルの場所
-	enum class eMENU_CURSOR
-	{
-		NONE = -1,
-
-		MANUAL,			//操作説明
-		CHARA_SELECT,	//キャラクターセレクト
-		EXIT,			//ゲーム終了
-
-		OVER_ID
-	};
 	int m_menuCursor;
 	//カーソルの座標
 	static const DirectX::SimpleMath::Vector2 MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::OVER_ID)];
@@ -265,5 +265,7 @@ private:
 
 	//UIクラスのポインタ
 	std::unique_ptr<PlaySceneUI> m_pPlaySceneUI;
+	//操作説明画面クラスのポインタ
+	std::unique_ptr<PlaySceneManual> m_pPlaySceneManual;
 };
 

@@ -76,7 +76,6 @@ private:
 	//ブースト容量バーの初期座標
 	static const DirectX::SimpleMath::Vector2 BOOST_BAR_POS[PLAYER_NUM];
 
-
 	//体力バー
 	std::unique_ptr<Sprite2D> m_pHPBar[PLAYER_NUM];
 	//体力バー(体力低)	

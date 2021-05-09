@@ -40,10 +40,6 @@
 #include "UI/PlaySceneUI.h"
 
 
- //操作説明の画像の横幅
- const float PlayScene::MANUAL_SPRITE_WIDTH = 1920.0f;
- //操作説明の画像の高さ
- const float PlayScene::MANUAL_SPRITE_HEIGHT = 1080.0f;
  //カウントダウンの時間
  const float PlayScene::COUNT_DOWN_TIME = 3.0f;
  //制限時間の最大値
@@ -165,7 +161,7 @@ void PlayScene::Initialize()
 		m_pPlayer[i]->SetAttackManager(AttackManager::GetInstance());
 		//プレイヤーの勝利本数の初期化
 		m_playerWinNum[i] = 0;
-	    
+		
 		//足元の影の読み込み、初期化
 		m_pShadowManager[i] = std::make_unique<ShadowManager>();
 		m_pShadowManager[i]->Initialize(1,10,DirectX::SimpleMath::Vector3::Zero);
@@ -188,53 +184,59 @@ void PlayScene::Initialize()
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]);
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]);
 
-	//操作説明の画像読み込み、初期座標設定
-	for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-	{
-		m_pManualSprite[i] = std::make_unique<Sprite2D>();
+	//操作説明画面クラスのポインタ
+	m_pPlaySceneManual = std::make_unique<PlaySceneManual>();
+	//初期化
+	m_pPlaySceneManual->Initialize();
+	m_pPlaySceneManual->SetPlayScene(this);
 
-		m_ManualSpritePos[i].y = -MANUAL_SPRITE_HEIGHT;
+	////操作説明の画像読み込み、初期座標設定
+	//for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
+	//{
+	//	m_pManualSprite[i] = std::make_unique<Sprite2D>();
 
-	}
-	m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = MANUAL_SPRITE_WIDTH;
+	//	m_ManualSpritePos[i].y = -MANUAL_SPRITE_HEIGHT;
 
-	m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)]
-		->Create(L"Resources/Textures/Manual_1.png");
+	//}
+	//m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = MANUAL_SPRITE_WIDTH;
 
-	//操作説明のカーソル画像の読み込み
-	m_pManualCursorSpriteRight = std::make_unique<Sprite2D>();
-	m_pManualCursorSpriteRight->Create( L"Resources/Textures/ManualCursolr_Right.png");
-	m_pManualCursorSpriteLeft = std::make_unique<Sprite2D>();
-	m_pManualCursorSpriteLeft->Create( L"Resources/Textures/ManualCursolr_Left.png");
+	//m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)]
+	//	->Create(L"Resources/Textures/Manual_1.png");
 
-	//操作しているキャラクターごとに読み込む操作説明の画像を切り替える
-	switch (CharacterFactory::m_player1Chara)
-	{
-		//キャラクター１
-		case eCHARACTER_ID::CHARACTER_1:
-		{
-			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
-				->Create( L"Resources/Textures/Manual_2_chara1.png");
-			break;
-		}
-		//キャラクター２
-		case eCHARACTER_ID::CHARACTER_2:
-		{
-			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
-				->Create( L"Resources/Textures/Manual_2_chara2.png");
-			break;
-		}
-		//キャラクター３
-		case eCHARACTER_ID::CHARACTER_3:
-		{
-			m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
-				->Create(L"Resources/Textures/Manual_2_chara3.png");
-			break;
-		}
+	////操作説明のカーソル画像の読み込み
+	//m_pManualCursorSpriteRight = std::make_unique<Sprite2D>();
+	//m_pManualCursorSpriteRight->Create( L"Resources/Textures/ManualCursolr_Right.png");
+	//m_pManualCursorSpriteLeft = std::make_unique<Sprite2D>();
+	//m_pManualCursorSpriteLeft->Create( L"Resources/Textures/ManualCursolr_Left.png");
 
-		default:
-			break;
-	}
+	////操作しているキャラクターごとに読み込む操作説明の画像を切り替える
+	//switch (CharacterFactory::m_player1Chara)
+	//{
+	//	//キャラクター１
+	//	case eCHARACTER_ID::CHARACTER_1:
+	//	{
+	//		m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
+	//			->Create( L"Resources/Textures/Manual_2_chara1.png");
+	//		break;
+	//	}
+	//	//キャラクター２
+	//	case eCHARACTER_ID::CHARACTER_2:
+	//	{
+	//		m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
+	//			->Create( L"Resources/Textures/Manual_2_chara2.png");
+	//		break;
+	//	}
+	//	//キャラクター３
+	//	case eCHARACTER_ID::CHARACTER_3:
+	//	{
+	//		m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)]
+	//			->Create(L"Resources/Textures/Manual_2_chara3.png");
+	//		break;
+	//	}
+
+	//	default:
+	//		break;
+	//}
 
 
 }
@@ -255,9 +257,9 @@ void PlayScene::Update(DX::StepTimer const& timer)
 	m_totalSeconds = static_cast<float>(timer.GetTotalSeconds());
 
 
-	SetView(
-		DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), 
+	SetView(DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), 
 			m_targetPos, DirectX::SimpleMath::Vector3::UnitY));
+
 	//m_view = m_pDebugCamera->getViewMatrix();
 
 	float time = float(timer.GetTotalSeconds());
@@ -316,6 +318,7 @@ void PlayScene::Update(DX::StepTimer const& timer)
 
 				break;
 			}
+
 			//メイン
 			case eSCENE_STATE::MAIN:
 			{
@@ -451,14 +454,15 @@ void PlayScene::Update(DX::StepTimer const& timer)
 							//プレイヤーの床との当たり判定
 							m_pPlayer[i]->HitFloor(m_floorBox);
 
-
 						}
+						//プレイヤー１の体力がプレイヤー２より多ければプレイヤー１を動かす
 						if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() > m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
 						{
 							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Ready(timer);
 							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetCharaState(eCHARACTER_STATE::LOSE);
 							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Lose(timer);
 						}
+						//プレイヤー２の体力がプレイヤー１より多ければプレイヤー２を動かす
 						else
 						{
 							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Ready(timer);
@@ -550,13 +554,11 @@ void PlayScene::Update(DX::StepTimer const& timer)
 				}
 				break;
 			}
+
 			default:
 				break;
 		}
 	}
-
-
-	//}
 
 	//メニュー
 	Menu();
@@ -612,20 +614,7 @@ void PlayScene::Render()
 	//操作説明の画像の描画
 	if (m_isManualDisplay == true)
 	{
-		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-		{
-			m_pManualSprite[i]->Draw(true);
-
-		}
-	}
-	//操作説明のカーソル画像の描画
-	if (m_isManualDisplay == true && m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x < 0.0f)
-	{
-		m_pManualCursorSpriteLeft->Draw(true);
-	}
-	else if (m_isManualDisplay == true && m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
-	{
-		m_pManualCursorSpriteRight->Draw(true);
+		m_pPlaySceneManual->Render();
 	}
 }
 
@@ -651,12 +640,6 @@ void PlayScene::Finalize()
 	m_pDebugCamera.reset();
 	m_space.reset();
 	m_sprite2D.reset();
-	for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-	{
-		m_pManualSprite[i]->Reset();
-
-	}
-
 	for (int i = 0; i < PLAYER_NUM; i++)
 	{
 
@@ -671,11 +654,6 @@ void PlayScene::Finalize()
 
 	}
 
-	m_pManualCursorSpriteLeft->Reset();
-	m_pManualCursorSpriteLeft.reset();
-
-	m_pManualCursorSpriteRight->Reset();
-	m_pManualCursorSpriteRight.reset();
 
 
 	DebugFont::Dispose();
@@ -741,124 +719,125 @@ void PlayScene::Reset()
 //////////////////////////
 void PlayScene::Manual()
 {
-	//操作説明表示中にESCキーでゲームに戻る
-	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == true)
-	{
-		//下降フラグを消す
-		m_isManualDown = false;
-		//上昇フラグを立てる
-		m_isManualUp = true;
-
-		//SE再生
-		ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
-
-	}
-
-	//左右入力で移動フラグを立てる
-	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Left) &&
-		m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x < 0.0f)
-	{
-		m_isManualLeft = false;
-		m_isManualRight = true;
-
-		//SE再生
-		ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
-
-	}
-	else if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Right) &&
-		m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
-	{
-		m_isManualRight = false;
-		m_isManualLeft = true;
-
-		//SE再生
-		ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
-
-	}
-	
-	//カーソル更新
-	if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x < 0.0f)
-	{
-		m_pManualCursorSpriteRight->Update(DirectX::SimpleMath::Vector2(100.0f, 540.0f));
-	}
-
-	//操作説明のカーソルの更新
-	m_pManualCursorSpriteRight->Update(DirectX::SimpleMath::Vector2(1720.0f + cosf(m_totalSeconds * 6.0f)*10.0f, 540.0f));
-	m_pManualCursorSpriteLeft->Update(DirectX::SimpleMath::Vector2(50.0f - cosf(m_totalSeconds * 6.0f) * 10.0f, 540.0f));
-
-
-	//右移動フラグが立ったら画像を右に移動させる
-	if (m_isManualRight == true)
-	{
-		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-		{
-			m_ManualSpritePos[i].x += MANUAL_SPRITE_WIDTH / 10.0f;
-
-			if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
-			{
-				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x = 0.0f;
-				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = MANUAL_SPRITE_WIDTH;
-				m_isManualRight = false;
-			}
-		}
-	}
-
-	//左移動フラグが立ったら画像を左に移動させる
-	if (m_isManualLeft == true)
-	{
-		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-		{
-			m_ManualSpritePos[i].x -= MANUAL_SPRITE_WIDTH / 10.0f;
-
-			if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x <= -MANUAL_SPRITE_WIDTH)
-			{
-				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x = -MANUAL_SPRITE_WIDTH;
-				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = 0.0f;
-				m_isManualLeft = false;
-			}
-		}
-
-	}
-
-	//下降フラグが立ったら画像を下降させる
-	if (m_isManualDown == true)
-	{
-		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-		{
-			m_ManualSpritePos[i].y += MANUAL_SPRITE_HEIGHT / 10.0f;
-
-			if (m_ManualSpritePos[i].y >= 0.0f)
-			{
-				m_ManualSpritePos[i].y = 0.0f;
-				m_isManualDown = false;
-			}
-		}
-	}
-
-	//上昇フラグが立ったら画像を上昇させる
-	if (m_isManualUp == true)
-	{
-		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-		{
-			m_ManualSpritePos[i].y -= MANUAL_SPRITE_HEIGHT / 10.0f;
-
-			if (m_ManualSpritePos[i].y <= -MANUAL_SPRITE_HEIGHT)
-			{
-				m_ManualSpritePos[i].y = -MANUAL_SPRITE_HEIGHT;
-				m_isManualUp = false;
-				//ゲーム停止フラグを消す
-				m_isManualDisplay = false;
-			}
-		}
-	}
-
-	//画像の更新
-	for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
-	{
-		m_pManualSprite[i]->Update(m_ManualSpritePos[i]);
-
-	}
-
+//	//操作説明表示中にESCキーでゲームに戻る
+//	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_isManualDisplay == true)
+//	{
+//		//下降フラグを消す
+//		m_isManualDown = false;
+//		//上昇フラグを立てる
+//		m_isManualUp = true;
+//
+//		//SE再生
+//		ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
+//	}
+//
+//	//左右入力で移動フラグを立てる
+//	//左入力
+//	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Left) &&
+//		m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x < 0.0f)
+//	{
+//		m_isManualLeft = false;
+//		m_isManualRight = true;
+//
+//		//SE再生
+//		ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
+//
+//	}
+//	//右入力
+//	else if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Right) &&
+//		m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
+//	{
+//		m_isManualRight = false;
+//		m_isManualLeft = true;
+//
+//		//SE再生
+//		ADX2::GetInstance().Play(CRI_CUESHEET_0_CURSOL);
+//
+//	}
+//	
+//	//カーソル更新
+//	if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x < 0.0f)
+//	{
+//		m_pManualCursorSpriteRight->Update(DirectX::SimpleMath::Vector2(100.0f, 540.0f));
+//	}
+//
+//	//操作説明のカーソルの更新
+//	m_pManualCursorSpriteRight->Update(DirectX::SimpleMath::Vector2(1720.0f + cosf(m_totalSeconds * 6.0f)*10.0f, 540.0f));
+//	m_pManualCursorSpriteLeft->Update(DirectX::SimpleMath::Vector2(50.0f - cosf(m_totalSeconds * 6.0f) * 10.0f, 540.0f));
+//
+//
+//	//右移動フラグが立ったら画像を右に移動させる
+//	if (m_isManualRight == true)
+//	{
+//		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
+//		{
+//			m_ManualSpritePos[i].x += MANUAL_SPRITE_WIDTH / 10.0f;
+//
+//			if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
+//			{
+//				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x = 0.0f;
+//				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = MANUAL_SPRITE_WIDTH;
+//				m_isManualRight = false;
+//			}
+//		}
+//	}
+//
+//	//左移動フラグが立ったら画像を左に移動させる
+//	if (m_isManualLeft == true)
+//	{
+//		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
+//		{
+//			m_ManualSpritePos[i].x -= MANUAL_SPRITE_WIDTH / 10.0f;
+//
+//			if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x <= -MANUAL_SPRITE_WIDTH)
+//			{
+//				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x = -MANUAL_SPRITE_WIDTH;
+//				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::COMMAND)].x = 0.0f;
+//				m_isManualLeft = false;
+//			}
+//		}
+//
+//	}
+//
+//	//下降フラグが立ったら画像を下降させる
+//	if (m_isManualDown == true)
+//	{
+//		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
+//		{
+//			m_ManualSpritePos[i].y += MANUAL_SPRITE_HEIGHT / 10.0f;
+//
+//			if (m_ManualSpritePos[i].y >= 0.0f)
+//			{
+//				m_ManualSpritePos[i].y = 0.0f;
+//				m_isManualDown = false;
+//			}
+//		}
+//	}
+//
+//	//上昇フラグが立ったら画像を上昇させる
+//	if (m_isManualUp == true)
+//	{
+//		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
+//		{
+//			m_ManualSpritePos[i].y -= MANUAL_SPRITE_HEIGHT / 10.0f;
+//
+//			if (m_ManualSpritePos[i].y <= -MANUAL_SPRITE_HEIGHT)
+//			{
+//				m_ManualSpritePos[i].y = -MANUAL_SPRITE_HEIGHT;
+//				m_isManualUp = false;
+//				//ゲーム停止フラグを消す
+//				m_isManualDisplay = false;
+//			}
+//		}
+//	}
+//
+//	//画像の更新
+//	for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
+//	{
+//		m_pManualSprite[i]->Update(m_ManualSpritePos[i]);
+//
+//	}
+//
 }
 
 ///////////////////////////
@@ -877,7 +856,6 @@ void PlayScene::Menu()
 			ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
 
 		m_isStop = !m_isStop;
-
 	}
 
 	//カーソルの座標設定
@@ -977,7 +955,7 @@ void PlayScene::Menu()
 	}
 
 	//操作説明の表示フラグが立ったら操作説明の更新
-	if (m_isManualDisplay == true)Manual();
+	if (m_isManualDisplay == true)m_pPlaySceneManual->Update();
 }
 
 ///////////////////////////
