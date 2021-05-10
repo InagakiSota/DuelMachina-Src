@@ -95,5 +95,7 @@ private:
 	//カーソル画像の色
 	DirectX::SimpleMath::Vector4 m_cursorColor;
 
+	//音のID
+	int m_soundID;
 };
 

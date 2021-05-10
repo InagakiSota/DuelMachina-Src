@@ -131,6 +131,7 @@ void Character3::Update(DX::StepTimer const& timer)
 	}
 
 	//ブーストエフェクトマネージャーの更新
+	//プレイヤーが右向き
 	if (GetFrontVector().x > 0)
 	{
 		GetBoostEffectManager()->Update(timer,
@@ -139,6 +140,7 @@ void Character3::Update(DX::StepTimer const& timer)
 				GetPos().y + Character3Params::BOOST_EFFECT_POS_Y,
 				0.0f), Character3Params::BOOST_EFFECT_ANGLE_LEFT);
 	}
+	//プレイヤーが左向き
 	else
 	{
 		GetBoostEffectManager()->Update(timer,

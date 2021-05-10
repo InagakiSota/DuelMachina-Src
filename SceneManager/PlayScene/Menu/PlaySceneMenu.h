@@ -10,6 +10,19 @@
 #include "Src/FrameWork/Sprite2D/Sprite2D.h"
 
 class PlayScene;
+class PlaySceneManual;
+
+//メニューのカーソルの場所
+enum class eMENU_CURSOR
+{
+	NONE = -1,
+
+	MANUAL,			//操作説明
+	CHARA_SELECT,	//キャラクターセレクト
+	EXIT,			//ゲーム終了
+
+	OVER_ID
+};
 
 class PlaySceneMenu
 {
@@ -35,17 +48,7 @@ public:
 
 
 private:
-	//メニューのカーソルの場所
-	enum class eMENU_CURSOR
-	{
-		NONE = -1,
 
-		MANUAL,			//操作説明
-		CHARA_SELECT,	//キャラクターセレクト
-		EXIT,			//ゲーム終了
-
-		OVER_ID
-	};
 
 	//プレイシーンのポインタ
 	PlayScene* m_pPlayScene;
@@ -59,6 +62,7 @@ private:
 	int m_menuCursor;
 	//カーソルの座標
 	static const DirectX::SimpleMath::Vector2 MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::OVER_ID)];
-
+	//操作説明クラスのポインタ
+	std::unique_ptr<PlaySceneManual> m_pPlaySceneManual;
 };
 

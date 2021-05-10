@@ -152,6 +152,7 @@ void PlaySceneManual::Update()
 		{
 			m_ManualSpritePos[i].x += MANUAL_SPRITE_WIDTH / 10.0f;
 
+			//右に移動し終わったら右移動フラグを消す
 			if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x >= 0.0f)
 			{
 				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x = 0.0f;
@@ -167,7 +168,7 @@ void PlaySceneManual::Update()
 		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
 		{
 			m_ManualSpritePos[i].x -= MANUAL_SPRITE_WIDTH / 10.0f;
-
+			//左に移動し終わったら左移動フラグを消す
 			if (m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x <= -MANUAL_SPRITE_WIDTH)
 			{
 				m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::KEYBOARD)].x = -MANUAL_SPRITE_WIDTH;
@@ -185,6 +186,7 @@ void PlaySceneManual::Update()
 		{
 			m_ManualSpritePos[i].y += MANUAL_SPRITE_HEIGHT / 10.0f;
 
+			//降下し終わったら降下フラグを消す
 			if (m_ManualSpritePos[i].y >= 0.0f)
 			{
 				m_ManualSpritePos[i].y = 0.0f;
@@ -199,7 +201,7 @@ void PlaySceneManual::Update()
 		for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)
 		{
 			m_ManualSpritePos[i].y -= MANUAL_SPRITE_HEIGHT / 10.0f;
-
+			//上昇し終わったら上昇フラグを消す
 			if (m_ManualSpritePos[i].y <= -MANUAL_SPRITE_HEIGHT)
 			{
 				m_ManualSpritePos[i].y = -MANUAL_SPRITE_HEIGHT;

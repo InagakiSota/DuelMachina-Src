@@ -27,6 +27,7 @@ class PlaySceneUI;
 class FbxModel;
 class ShadowManager;
 class HitEffectManager;
+class PlaySceneMenu;
 
 class PlayScene :
 	public SceneBase
@@ -139,6 +140,23 @@ public:
 	{
 		m_isManualDisplay = isManualDisplay;
 	}
+
+	//停止フラグの取得
+	bool GetIsStop()const
+	{
+		return m_isStop;
+	}
+	//停止フラグの設定
+	void SetIsStop(const bool& isStop)
+	{
+		m_isStop = isStop;
+	}
+
+	//プレイヤーの取得
+	CharacterBase* GetPlayer(const int& index)
+	{
+		return m_pPlayer[index];
+	}
 private:
 	//リセット
 	void Reset();
@@ -228,36 +246,13 @@ private:
 	int m_playerHpBuffer[PLAYER_NUM];
 	//ゲーム停止フラグ
 	bool m_isStop;
-
-	//操作説明画像
-	std::unique_ptr<Sprite2D> m_pManualSprite[static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM)];
-	//操作説明の画像の座標
-	DirectX::SimpleMath::Vector2 m_ManualSpritePos[static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM)];
-	//操作説明上昇フラグ
-	bool m_isManualUp;
-	//操作説明下降フラグ
-	bool m_isManualDown;
-	//操作説明右移動フラグ
-	bool m_isManualRight;
-	//操作説明左移動フラグ
-	bool m_isManualLeft;
-	//操作説明表示フラグ
-	bool m_isManualDisplay;
-	//操作説明のカーソルの画像(右)
-	std::unique_ptr<Sprite2D> m_pManualCursorSpriteRight;
-	//操作説明のカーソルの画像(左)
-	std::unique_ptr<Sprite2D> m_pManualCursorSpriteLeft;
 	
-	//メニューの画像
-	std::unique_ptr<Sprite2D> m_pMenuSprite;
-	//メニューのカーソル画像
-	std::unique_ptr<Sprite2D> m_pMenuCursorSprite;
 	//メニュー表示フラグ
 	bool m_isMenuDisplay;
+	//操作説明表示フラグ
+	bool m_isManualDisplay;
 
 	int m_menuCursor;
-	//カーソルの座標
-	static const DirectX::SimpleMath::Vector2 MENU_CURSOR_POS[static_cast<int>(eMENU_CURSOR::OVER_ID)];
 	//時間
 	float m_totalSeconds;
 	//リザルトに遷移したフラグ
@@ -265,7 +260,10 @@ private:
 
 	//UIクラスのポインタ
 	std::unique_ptr<PlaySceneUI> m_pPlaySceneUI;
-	//操作説明画面クラスのポインタ
-	std::unique_ptr<PlaySceneManual> m_pPlaySceneManual;
+	//メニュークラスのポインタ
+	std::unique_ptr<PlaySceneMenu> m_pPlaySceneMenu;
+
+
+
 };
 

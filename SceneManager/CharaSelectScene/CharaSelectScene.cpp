@@ -157,7 +157,10 @@ void CharaSelectScene::Initialize()
 	//現在選択しているキャラクターの初期設定
 	m_nowSelect = static_cast<int>(eCHARACTER_ID::CHARACTER_1);
 
-	SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_SELECTSCENE_BGM));
+	//BGMの再生
+	m_soundID = ADX2::GetInstance().Play(CRI_CUESHEET_0_SELECTSCENE_BGM);
+
+	//カーソルの初期カラー設定
 	m_cursorColor = DirectX::SimpleMath::Vector4(0.0f, 1.0f, 1.0f, 1.0f);
 }
 
@@ -168,8 +171,8 @@ void CharaSelectScene::Initialize()
 //////////////////////////
 void CharaSelectScene::Update(DX::StepTimer const & timer)
 {
-	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
-	GetKeyTracker()->Update(keyState);
+	//基底クラスの更新関数
+	SceneBase::Update(timer);
 
 	//キャラクターのアイコンの座標設定
 	m_pCharacterSprite[static_cast<int>(eCHARACTER_ID::CHARACTER_1)]->Update(CHARA1_ICON_POS);
@@ -291,7 +294,7 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 					//SE再生
 					ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
 
-					ADX2::GetInstance().Stop(GetSoundID());
+					ADX2::GetInstance().Stop(m_soundID);
 
 				}
 

@@ -33,6 +33,12 @@ public:
 		m_pPlayScene = pPlayScene;
 	}
 
+	//‰º~ƒtƒ‰ƒO‚Ìİ’è
+	void SetIsManualDown(const bool& isManualDown)
+	{
+		m_isManualDown = isManualDown;
+	}
+
 private:
 	//‘€ìà–¾‚Ì‰æ‘œ‚Ì‰¡•
 	static const float MANUAL_SPRITE_WIDTH;
