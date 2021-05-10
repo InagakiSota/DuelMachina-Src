@@ -8,7 +8,7 @@
 #include "PlaySceneFadeOutState.h"
 
 //コンストラクタ
-PlaySceneFadeOutState::~PlaySceneFadeOutState()
+PlaySceneFadeOutState::PlaySceneFadeOutState()
 {
 }
 
@@ -22,7 +22,6 @@ PlaySceneFadeOutState::~PlaySceneFadeOutState()
 //引数:なし
 //戻り値:なし
 //////////////////////////
-
 void PlaySceneFadeOutState::Update(DX::StepTimer const& timer)
 {
 }

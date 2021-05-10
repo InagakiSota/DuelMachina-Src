@@ -336,7 +336,8 @@ void CharaSelectScene::Update(DX::StepTimer const & timer)
 					default:
 						break;
 				}
-				ADX2::GetInstance().Stop(GetSoundID());
+				//BGM’âŽ~
+				ADX2::GetInstance().Stop(m_soundID);
 
 				//ƒvƒŒƒCƒV[ƒ“‚Ö‚Ì‘JˆÚ
 				SceneManager::GetInstance()->SetScene(eSCENE_ID::PLAY_SCENE);
