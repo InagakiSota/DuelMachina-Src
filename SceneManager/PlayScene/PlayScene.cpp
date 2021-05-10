@@ -76,7 +76,6 @@ PlayScene::PlayScene()
 	m_isStop = false;
 	m_isManualUp = m_isManualDown = m_isManualRight = m_isManualLeft = false;
 	m_isManualDisplay = false;
-	m_menuCursor = static_cast<int>(eMENU_CURSOR::MANUAL);
 	m_isResult = false;
 }
 
@@ -141,11 +140,11 @@ void PlayScene::Initialize()
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetStartPos(DirectX::SimpleMath::Vector3(-2.0f, 1.0f, 0.0f));
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetStartPos(DirectX::SimpleMath::Vector3(2.0f, 1.0f, 0.0f));
 
-	//メニューの画像読み込み
-	m_pMenuSprite = std::make_unique<Sprite2D>();
-	m_pMenuSprite->Create(L"Resources/Textures/Menu.png");
-	m_pMenuCursorSprite = std::make_unique<Sprite2D>();
-	m_pMenuCursorSprite->Create(L"Resources/Textures/menuCursol.png");
+	////メニューの画像読み込み
+	//m_pMenuSprite = std::make_unique<Sprite2D>();
+	//m_pMenuSprite->Create(L"Resources/Textures/Menu.png");
+	//m_pMenuCursorSprite = std::make_unique<Sprite2D>();
+	//m_pMenuCursorSprite->Create(L"Resources/Textures/menuCursol.png");
 
 	//UIクラスの読み込み
 	m_pPlaySceneUI = std::make_unique < PlaySceneUI>();
@@ -153,6 +152,15 @@ void PlayScene::Initialize()
 	m_pPlaySceneUI->SetPlayScene(this);
 	//UIクラスの初期化
 	m_pPlaySceneUI->Initialize();
+
+	//操作説明画面クラスのポインタ
+	m_pPlaySceneManual = std::make_unique<PlaySceneManual>();
+	//プレイシーンのポインタを渡す
+	m_pPlaySceneManual->SetPlayScene(this);
+	//操作説明画面クラスの初期化
+	m_pPlaySceneManual->Initialize();
+
+
 
 	//プレイヤーの初期化
 	for (int i = 0; i < PLAYER_NUM; i++)
@@ -183,12 +191,6 @@ void PlayScene::Initialize()
 	//敵のポインタ取得
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]);
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemy(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]);
-
-	//操作説明画面クラスのポインタ
-	m_pPlaySceneManual = std::make_unique<PlaySceneManual>();
-	//初期化
-	m_pPlaySceneManual->Initialize();
-	m_pPlaySceneManual->SetPlayScene(this);
 
 	////操作説明の画像読み込み、初期座標設定
 	//for (int i = 0; i < static_cast<int>(eMANUAL_SPRITE_TYPE::SPRITE_NUM); i++)

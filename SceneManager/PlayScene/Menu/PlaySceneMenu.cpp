@@ -10,6 +10,8 @@
 //コンストラクタ
 PlaySceneMenu::PlaySceneMenu()
 {
+	m_menuCursor = static_cast<int>(eMENU_CURSOR::MANUAL);
+
 }
 
 //デストラクタ
@@ -24,6 +26,14 @@ PlaySceneMenu::~PlaySceneMenu()
 ////////////////////////
 void PlaySceneMenu::Initialize()
 {
+	//メニューの画像読み込み
+	m_pMenuSprite = std::make_unique<Sprite2D>();
+	m_pMenuSprite->Create(L"Resources/Textures/Menu.png");
+	//カーソルの画像の読み込み
+	m_pMenuCursorSprite = std::make_unique<Sprite2D>();
+	m_pMenuCursorSprite->Create(L"Resources/Textures/menuCursol.png");
+
+
 }
 
 ////////////////////////
@@ -42,6 +52,9 @@ void PlaySceneMenu::Update()
 ////////////////////////
 void PlaySceneMenu::Render()
 {
+	m_pMenuSprite->Draw(true);
+	m_pMenuCursorSprite->Draw(true);
+
 }
 
 ////////////////////////
