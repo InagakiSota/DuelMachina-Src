@@ -23,7 +23,8 @@ const DirectX::SimpleMath::Vector2 PlaySceneMenu::MENU_CURSOR_POS[static_cast<in
 PlaySceneMenu::PlaySceneMenu()
 {
 	m_menuCursor = static_cast<int>(eMENU_CURSOR::MANUAL);
-
+	m_isMenuDisplay = false;
+	m_pPlayScene = nullptr;
 }
 
 //デストラクタ
