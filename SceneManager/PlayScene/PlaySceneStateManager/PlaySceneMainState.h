@@ -25,6 +25,16 @@ public:
 
 
 private:
+	//制限時間の最大値
+	static const float TIME_MAX;
+	//タイムアップシーンの時間
+	static const float TIME_UP_TIME;
+	//ラウンド切り替えの時間
+	static const float ROUND_CHANGE_TIME;
+	//カウントダウンの時間
+	static const float COUNT_DOWN_TIME;
+
+
 	//プレイシーンのポインタ
 	PlayScene* m_pPlayScene;
 };

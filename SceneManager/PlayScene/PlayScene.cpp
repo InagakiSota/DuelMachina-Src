@@ -49,9 +49,6 @@
  //ラウンド切り替え時の時間
  const float PlayScene::ROUND_CHANGE_TIME = 1.0f;
 
-
-
-
 //コンストラクタ
 PlayScene::PlayScene()
 	:m_floorBox{},
@@ -228,24 +225,24 @@ void PlayScene::Update(DX::StepTimer const& timer)
 			//フェードイン
 			case eSCENE_STATE::FADE_IN:
 			{
-				//フェードのタイマーを加算する
-				SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+				////フェードのタイマーを加算する
+				//SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
 
-				if (GetFadeTimer() <= 0.0f)
-				{	
-					//BGMの再生
-					SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM));
-					//メイン状態に遷移
-					SetSceneState(eSCENE_STATE::MAIN);
-				}
+				//if (GetFadeTimer() <= 0.0f)
+				//{	
+				//	//BGMの再生
+				//	SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM));
+				//	//メイン状態に遷移
+				//	SetSceneState(eSCENE_STATE::MAIN);
+				//}
 
-				for (int i = 0; i < PLAYER_NUM; i++)
-				{
-					//プレイヤーの床との当たり判定
-					m_pPlayer[i]->HitFloor(m_floorBox);
-					//プレイヤーの準備
-					m_pPlayer[i]->Ready(timer);
-				}
+				//for (int i = 0; i < PLAYER_NUM; i++)
+				//{
+				//	//プレイヤーの床との当たり判定
+				//	m_pPlayer[i]->HitFloor(m_floorBox);
+				//	//プレイヤーの準備
+				//	m_pPlayer[i]->Ready(timer);
+				//}
 
 				break;
 			}
@@ -253,175 +250,175 @@ void PlayScene::Update(DX::StepTimer const& timer)
 			//メイン
 			case eSCENE_STATE::MAIN:
 			{
-				switch (m_playSceneState)
-				{
-					//カウントダウン
-					case PlayScene::ePLAY_SCENE_STATE::COUNT_DOWN:
-					{
+				//switch (m_playSceneState)
+				//{
+				//	//カウントダウン
+				//	case PlayScene::ePLAY_SCENE_STATE::COUNT_DOWN:
+				//	{
 
-						for (int i = 0; i < PLAYER_NUM; i++)
-						{
-							//プレイヤーの床との当たり判定
-							m_pPlayer[i]->HitFloor(m_floorBox);
-							//プレイヤーの準備
-							m_pPlayer[i]->Ready(timer);
-						}
-						//敵の座標の取得
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos());
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos());
-						//プレイヤー同士の体の当たり判定
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->HitEnemyBody(
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBodyCollBox(),
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHeadCollBox());
+				//		for (int i = 0; i < PLAYER_NUM; i++)
+				//		{
+				//			//プレイヤーの床との当たり判定
+				//			m_pPlayer[i]->HitFloor(m_floorBox);
+				//			//プレイヤーの準備
+				//			m_pPlayer[i]->Ready(timer);
+				//		}
+				//		//敵の座標の取得
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos());
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos());
+				//		//プレイヤー同士の体の当たり判定
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->HitEnemyBody(
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBodyCollBox(),
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHeadCollBox());
 
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->HitEnemyBody(
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBodyCollBox(),
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->HitEnemyBody(
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBodyCollBox(),
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
 
-						//カウントダウンのタイマーを加算
-						m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
-						//一定時間になったらメイン状態に遷移
-						if (m_countdownTimer >= COUNT_DOWN_TIME)
-						{
-							m_playSceneState = ePLAY_SCENE_STATE::MAIN;
-							m_countdownTimer = 0.0f;
-						}
-						break;
-					}
-					//メイン
-					case PlayScene::ePLAY_SCENE_STATE::MAIN:
-					{
-						//攻撃のマネージャーの更新
-						AttackManager::GetInstance()->Update();
-
-
-						//時間を減らす
-						m_time -= static_cast<float>(timer.GetElapsedSeconds());
-						//時間がゼロになったらタイムアップに遷移
-						if (m_time <= 0)
-						{
-							m_playSceneState = ePLAY_SCENE_STATE::TIME_UP;
-							//プレイヤー１と２の勝利数を増やす
-							if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() ==
-								m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
-							{
-								m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]++;
-								m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]++;
-							}
-						}
-
-						for (int i = 0; i < PLAYER_NUM; i++)
-						{
-							//プレイヤーの床との当たり判定
-							m_pPlayer[i]->HitFloor(m_floorBox);
-							//プレイヤーの更新
-							m_pPlayer[i]->Update(timer);
-						}
-
-						//敵の座標の取得
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos());
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos());
-						//プレイヤー同士の体の当たり判定
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->HitEnemyBody(
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBodyCollBox(),
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHeadCollBox());
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->HitEnemyBody(
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBodyCollBox(),
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
+				//		//カウントダウンのタイマーを加算
+				//		m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
+				//		//一定時間になったらメイン状態に遷移
+				//		if (m_countdownTimer >= COUNT_DOWN_TIME)
+				//		{
+				//			m_playSceneState = ePLAY_SCENE_STATE::MAIN;
+				//			m_countdownTimer = 0.0f;
+				//		}
+				//		break;
+				//	}
+				//	//メイン
+				//	case PlayScene::ePLAY_SCENE_STATE::MAIN:
+				//	{
+				//		//攻撃のマネージャーの更新
+				//		AttackManager::GetInstance()->Update();
 
 
-						//プレイヤー１の体力がゼロになったらリザルトに遷移
-						if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() <= 0)
-						{
-							m_playSceneState = ePLAY_SCENE_STATE::RESULT;
-							//プレイヤー２の勝利数を増やす
-							m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]++;
-						}
-						//プレイヤー２の体力がゼロになったらリザルトに遷移
-						if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP() <= 0)
-						{
-							m_playSceneState = ePLAY_SCENE_STATE::RESULT;
-							//プレイヤー１の勝利数を増やす
-							m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]++;
-						}
+				//		//時間を減らす
+				//		m_time -= static_cast<float>(timer.GetElapsedSeconds());
+				//		//時間がゼロになったらタイムアップに遷移
+				//		if (m_time <= 0)
+				//		{
+				//			m_playSceneState = ePLAY_SCENE_STATE::TIME_UP;
+				//			//プレイヤー１と２の勝利数を増やす
+				//			if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() ==
+				//				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
+				//			{
+				//				m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]++;
+				//				m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]++;
+				//			}
+				//		}
 
-						break;
-					}
+				//		for (int i = 0; i < PLAYER_NUM; i++)
+				//		{
+				//			//プレイヤーの床との当たり判定
+				//			m_pPlayer[i]->HitFloor(m_floorBox);
+				//			//プレイヤーの更新
+				//			m_pPlayer[i]->Update(timer);
+				//		}
 
-					case PlayScene::ePLAY_SCENE_STATE::TIME_UP:
-					{
-						//攻撃のマネージャーの更新
-						//AttackManager::GetInstance()->Update();
-
-						m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
-						if (m_countdownTimer >= PlayScene::TIME_UP_TIME)
-						{
-							m_playSceneState = ePLAY_SCENE_STATE::RESULT;
-
-							//プレイヤー１の体力がプレイヤー２より多ければプレイヤー１の勝利数を増やす
-							if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() >
-								m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
-							{
-								m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]++;
-							}
-							//プレイヤー２の体力がプレイヤー１より多ければプレイヤー２の勝利数を増やす
-							else if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() <
-								m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
-							{
-								m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]++;
-							}
-
-							m_countdownTimer = 0.0f;
-						}
-						break;
-					}
+				//		//敵の座標の取得
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos());
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetEnemyPos(m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos());
+				//		//プレイヤー同士の体の当たり判定
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->HitEnemyBody(
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBodyCollBox(),
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHeadCollBox());
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->HitEnemyBody(
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBodyCollBox(),
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
 
 
-					//リザルト
-					case PlayScene::ePLAY_SCENE_STATE::RESULT:
-					{
+				//		//プレイヤー１の体力がゼロになったらリザルトに遷移
+				//		if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() <= 0)
+				//		{
+				//			m_playSceneState = ePLAY_SCENE_STATE::RESULT;
+				//			//プレイヤー２の勝利数を増やす
+				//			m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]++;
+				//		}
+				//		//プレイヤー２の体力がゼロになったらリザルトに遷移
+				//		if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP() <= 0)
+				//		{
+				//			m_playSceneState = ePLAY_SCENE_STATE::RESULT;
+				//			//プレイヤー１の勝利数を増やす
+				//			m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]++;
+				//		}
 
-						for (int i = 0; i < PLAYER_NUM; i++)
-						{
-							//プレイヤーの床との当たり判定
-							m_pPlayer[i]->HitFloor(m_floorBox);
+				//		break;
+				//	}
 
-						}
-						//プレイヤー１の体力がプレイヤー２より多ければプレイヤー１を動かす
-						if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() > m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
-						{
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Ready(timer);
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetCharaState(eCHARACTER_STATE::LOSE);
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Lose(timer);
-						}
-						//プレイヤー２の体力がプレイヤー１より多ければプレイヤー２を動かす
-						else
-						{
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Ready(timer);
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetCharaState(eCHARACTER_STATE::LOSE);
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Lose(timer);
-						}
+				//	case PlayScene::ePLAY_SCENE_STATE::TIME_UP:
+				//	{
+				//		//攻撃のマネージャーの更新
+				//		//AttackManager::GetInstance()->Update();
 
-						//プレイヤー同士の体の当たり判定
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->HitEnemyBody(
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBodyCollBox(),
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHeadCollBox());
+				//		m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
+				//		if (m_countdownTimer >= PlayScene::TIME_UP_TIME)
+				//		{
+				//			m_playSceneState = ePLAY_SCENE_STATE::RESULT;
 
-						m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->HitEnemyBody(
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBodyCollBox(),
-							m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
+				//			//プレイヤー１の体力がプレイヤー２より多ければプレイヤー１の勝利数を増やす
+				//			if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() >
+				//				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
+				//			{
+				//				m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_1)]++;
+				//			}
+				//			//プレイヤー２の体力がプレイヤー１より多ければプレイヤー２の勝利数を増やす
+				//			else if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() <
+				//				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
+				//			{
+				//				m_playerWinNum[static_cast<int>(ePLAYER_ID::PLAYER_2)]++;
+				//			}
 
-						m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
-						if (m_countdownTimer >= PlayScene::ROUND_CHANGE_TIME || GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space))
-						{
-							SetSceneState(eSCENE_STATE::FADE_OUT);
-						}
+				//			m_countdownTimer = 0.0f;
+				//		}
+				//		break;
+				//	}
 
-						break;
-					}
-					default:
-						break;
-				}
+
+				//	//リザルト
+				//	case PlayScene::ePLAY_SCENE_STATE::RESULT:
+				//	{
+
+				//		for (int i = 0; i < PLAYER_NUM; i++)
+				//		{
+				//			//プレイヤーの床との当たり判定
+				//			m_pPlayer[i]->HitFloor(m_floorBox);
+
+				//		}
+				//		//プレイヤー１の体力がプレイヤー２より多ければプレイヤー１を動かす
+				//		if (m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHP() > m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHP())
+				//		{
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Ready(timer);
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetCharaState(eCHARACTER_STATE::LOSE);
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Lose(timer);
+				//		}
+				//		//プレイヤー２の体力がプレイヤー１より多ければプレイヤー２を動かす
+				//		else
+				//		{
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->Ready(timer);
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetCharaState(eCHARACTER_STATE::LOSE);
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->Lose(timer);
+				//		}
+
+				//		//プレイヤー同士の体の当たり判定
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->HitEnemyBody(
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetBodyCollBox(),
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetHeadCollBox());
+
+				//		m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->HitEnemyBody(
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetBodyCollBox(),
+				//			m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetHeadCollBox());
+
+				//		m_countdownTimer += static_cast<float>(timer.GetElapsedSeconds());
+				//		if (m_countdownTimer >= PlayScene::ROUND_CHANGE_TIME || GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Space))
+				//		{
+				//			SetSceneState(eSCENE_STATE::FADE_OUT);
+				//		}
+
+				//		break;
+				//	}
+				//	default:
+				//		break;
+				//}
 
 
 				//m_sprite2D->Update(0, 0);//スプライトの更新

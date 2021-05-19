@@ -6,9 +6,11 @@
 
 #include "pch.h"
 #include "PlaySceneFadeOutState.h"
-
+#include "Adx2.h"
+#include "CueSheet_0.h"
 //コンストラクタ
 PlaySceneFadeOutState::PlaySceneFadeOutState()
+	:m_pPlayScene(nullptr)
 {
 }
 

@@ -71,6 +71,8 @@ public:
 
 		SPRITE_NUM,		//画像枚数
 	};
+	//プレイヤーの数
+	static const int PLAYER_NUM = 2;
 
 
 	//コンストラクタ
@@ -97,17 +99,35 @@ public:
 	{
 		return m_playerWinNum[index];
 	}
+	//プレイヤーの勝利本数のセッター
+	void SetPlayerWinNum(const int& index, const int& playerWinNum)
+	{
+		m_playerWinNum[index] = playerWinNum;
+	}
+
+
 
 	//時間のゲッター
 	float GetTime() const
 	{
 		return m_time;
 	}
+	//時間のセッター
+	void SetTime(const float& time)
+	{
+		m_time = time;
+	}
 	//プレイシーンの状態のゲッター
 	PlayScene::ePLAY_SCENE_STATE GetPlaySceneState()const
 	{
 		return m_playSceneState;
 	}
+	//プレイシーンの状態のセッター
+	void SetPlaySceneState(const PlayScene::ePLAY_SCENE_STATE& playSceneState)
+	{
+		m_playSceneState = playSceneState;
+	}
+
 	//リザルト状態かどうかのフラグのゲッター
 	bool GetIsResult()const
 	{
@@ -118,6 +138,12 @@ public:
 	{
 		return m_countdownTimer;
 	}
+	//カウントダウンのタイマーのセッター
+	void SetCountDownTimer(const float& countDownTimer)
+	{
+		m_countdownTimer = countDownTimer;
+	}
+
 	//現在のラウンドのゲッター
 	eROUND GetNowRound()const
 	{
@@ -157,13 +183,16 @@ public:
 	{
 		return m_pPlayer[index];
 	}
+
+	//床オブジェクトのポインタ取得
+	Collision::BoxCollision GetFloor()
+	{
+		return m_floorBox;
+	}
 private:
 	//リセット
 	void Reset();
 	//操作説明
-	void Manual();
-	//メニュー
-	void Menu();
 	//リザルト
 	void Result(DX::StepTimer const& timer);
 
@@ -174,8 +203,6 @@ private:
 	//プレイシーンのステート変数
 	ePLAY_SCENE_STATE m_playSceneState;
 
-	//プレイヤーの数
-	static const int PLAYER_NUM = 2;		
 	//勝利するための取得本数
 	static const int WIN_NUM = 2;
 
