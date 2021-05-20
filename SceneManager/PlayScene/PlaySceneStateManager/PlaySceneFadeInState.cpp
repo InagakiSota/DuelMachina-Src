@@ -29,17 +29,17 @@ PlaySceneFadeInState::~PlaySceneFadeInState()
 void PlaySceneFadeInState::Update(DX::StepTimer const& timer)
 {
 	//フェードのタイマーを加算する
-	SetFadeTimer(GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
+	m_pPlayScene->SetFadeTimer(m_pPlayScene->GetFadeTimer() - static_cast<float>(timer.GetElapsedSeconds()) * 2.0f);
 
-	if (GetFadeTimer() <= 0.0f)
+	if (m_pPlayScene->GetFadeTimer() <= 0.0f)
 	{
 		//BGMの再生
-		SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM));
+		m_pPlayScene->SetSoundID(ADX2::GetInstance().Play(CRI_CUESHEET_0_PLAYSCENE_BGM));
 		//メイン状態に遷移
-		SetSceneState(eSCENE_STATE::MAIN);
+		m_pPlayScene->SetSceneState(eSCENE_STATE::MAIN);
 	}
 
-	for (int i = 0; i < PLAYER_NUM; i++)
+	for (int i = 0; i < m_pPlayScene->PLAYER_NUM; i++)
 	{
 		//プレイヤーの床との当たり判定
 		m_pPlayScene->GetPlayer(i)->HitFloor(m_pPlayScene->GetFloor());

@@ -5,8 +5,10 @@
 ///////////////////////////////////
 
 #pragma once
+
 #include "../PlayScene.h"
-class PlaySceneFadeInState : public PlayScene
+
+class PlaySceneFadeInState
 {
 public:
 	//コンストラクタ

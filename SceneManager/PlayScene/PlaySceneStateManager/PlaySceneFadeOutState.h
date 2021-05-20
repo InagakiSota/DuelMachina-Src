@@ -5,8 +5,10 @@
 ///////////////////////////////////
 
 #pragma once
+
 #include "../PlayScene.h"
-class PlaySceneFadeOutState : public PlayScene
+
+class PlaySceneFadeOutState
 {
 public:
 	//コンストラクタ
@@ -25,7 +27,12 @@ public:
 
 
 private:
+	//勝利するための取得本数
+	static const int WIN_NUM;
+
 	//プレイシーンのポインタ
 	PlayScene* m_pPlayScene;
+
+
 };
 

@@ -9,8 +9,8 @@
 #include "../../SceneBase.h"
 #include <StepTimer.h>
 
+#include "../PlayScene.h"
 
-class PlayScene;
 class PlaySceneFadeInState;
 class PlaySceneFadeOutState;
 class PlaySceneMainState;

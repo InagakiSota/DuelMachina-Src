@@ -5,8 +5,10 @@
 ///////////////////////////////////
 
 #pragma once
+
 #include "../PlayScene.h"
-class PlaySceneMainState :public PlayScene
+
+class PlaySceneMainState
 {	
 public:
 	//コンストラクタ
@@ -37,5 +39,17 @@ private:
 
 	//プレイシーンのポインタ
 	PlayScene* m_pPlayScene;
+
+	//カウントダウン
+	void CountDown(DX::StepTimer const& timer);
+
+	//メイン
+	void Main(DX::StepTimer const& timer);
+
+	//タイムアップ
+	void TimeUp(DX::StepTimer const& timer);
+
+	//リザルト
+	void Result(DX::StepTimer const& timer);
 };
 

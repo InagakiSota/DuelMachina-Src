@@ -62,7 +62,7 @@ void PlaySceneMenu::Initialize()
 ////////////////////////
 void PlaySceneMenu::Update()
 {
-	if (m_pPlayScene->GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape) &&m_pPlayScene->GetIsManualDisplay() == false && m_pPlayScene->GetIsStop() == false)
+	if (m_pPlayScene->GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape) && m_pPlayScene->GetIsManualDisplay() == false)
 	{
 		//SE再生
 		if (m_pPlayScene->GetIsStop() == false)
@@ -70,7 +70,9 @@ void PlaySceneMenu::Update()
 		else if (m_pPlayScene->GetIsStop() == true)
 			ADX2::GetInstance().Play(CRI_CUESHEET_0_CANCEL);
 
-		m_pPlayScene->SetIsStop(!m_pPlayScene->GetIsStop());
+		bool isStop = m_pPlayScene->GetIsStop();
+
+		m_pPlayScene->SetIsStop(!isStop);
 	}
 
 	//カーソルの座標設定

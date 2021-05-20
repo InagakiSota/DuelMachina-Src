@@ -28,9 +28,9 @@ class FbxModel;
 class ShadowManager;
 class HitEffectManager;
 class PlaySceneMenu;
+class PlaySceneStateManager;
 
-class PlayScene :
-	public SceneBase
+class PlayScene : public SceneBase
 {
 ////////////////////////////////////
 //関数
@@ -95,7 +95,7 @@ public:
 	}
 
 	//プレイヤーの勝利本数のゲッター
-	int GetPlayerWinNum(const int& index)	const
+	int GetPlayerWinNum(const int& index)const
 	{
 		return m_playerWinNum[index];
 	}
@@ -104,7 +104,6 @@ public:
 	{
 		m_playerWinNum[index] = playerWinNum;
 	}
-
 
 
 	//時間のゲッター
@@ -133,6 +132,11 @@ public:
 	{
 		return m_isResult;
 	}
+	//リザルト状態かどうかのフラグのセッター
+	void SetIsResult(const bool& isResult)
+	{
+		m_isResult = isResult;
+	}
 	//カウントダウンのタイマーのゲッター
 	float GetCountDownTimer()const
 	{
@@ -149,7 +153,12 @@ public:
 	{
 		return m_nowRound;
 	}
-
+	//現在のラウンドのセッター
+	void SetNowRound(const eROUND& nowRound)
+	{
+		m_nowRound = nowRound;
+	}
+	
 	//時間の取得
 	float GetTotalTime() const
 	{
@@ -189,7 +198,6 @@ public:
 	{
 		return m_floorBox;
 	}
-private:
 	//リセット
 	void Reset();
 	//操作説明
@@ -289,7 +297,8 @@ private:
 	std::unique_ptr<PlaySceneUI> m_pPlaySceneUI;
 	//メニュークラスのポインタ
 	std::unique_ptr<PlaySceneMenu> m_pPlaySceneMenu;
-
+	//プレイシーンのステートマネージャー
+	std::unique_ptr<PlaySceneStateManager> m_pPlaySceneStateManager;
 
 
 };
