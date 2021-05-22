@@ -224,10 +224,18 @@ void PlayScene::Update(DX::StepTimer const& timer)
 		m_pPlaySceneStateManager->Update(timer, GetSceneState());
 	}
 
+
 	//メニュークラスの更新
 	m_pPlaySceneMenu->Update();
 	//リザルト
 	if(m_isResult == true)Result(timer);
+
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::O))
+	{
+		CameraShake(timer, 10.0f, 3.0f);
+	}
+
+	DoShake(timer, 10.0f, 3.0f);
 }
 
 ///////////////////////////

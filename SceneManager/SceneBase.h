@@ -42,6 +42,11 @@ public:
 	//終了処理
 	void Finalize() override;
 
+	//カメラの振動
+	void CameraShake(DX::StepTimer const& timer, float duration, float magnitude) override;
+	//カメラの振動を実行
+	void DoShake(DX::StepTimer const& timer, float duration, float magnitude);
+
 	//デバイスリソースの取得
 	DX::DeviceResources* GetDeviceResources() override
 	{
@@ -140,5 +145,8 @@ private:
 	DirectX::SimpleMath::Vector3 m_cameraPos;
 	//音のID
 	int m_soundID;
+	//カメラ振動のフラグ
+	bool m_isShake;
+
 
 };
