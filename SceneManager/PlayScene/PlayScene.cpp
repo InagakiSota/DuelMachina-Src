@@ -149,7 +149,7 @@ void PlayScene::Initialize()
 	}
 
 	//カメラの注視点の初期化
-	m_targetPos = DirectX::SimpleMath::Vector3::Zero;
+	SetTargetPos(DirectX::SimpleMath::Vector3::Zero);
 
 	//プレイシーンのステートを初期化
 	m_playSceneState = ePLAY_SCENE_STATE::COUNT_DOWN;
@@ -184,6 +184,13 @@ void PlayScene::Update(DX::StepTimer const& timer)
 {
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
 
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::O))
+	{
+		CameraShake(timer, 10.0f, 0.1f);
+	}
+
+	DoShake(timer, 10.0f, 0.1f);
+
 	//基底クラスの更新関数
 	SceneBase::Update(timer);
 
@@ -192,7 +199,7 @@ void PlayScene::Update(DX::StepTimer const& timer)
 
 	//ビュー行列を設定
 	SetView(DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), 
-			m_targetPos, DirectX::SimpleMath::Vector3::UnitY));
+			GetTargetPos(), DirectX::SimpleMath::Vector3::UnitY));
 
 
 	for (int i = 0; i < PLAYER_NUM; i++)
@@ -230,12 +237,7 @@ void PlayScene::Update(DX::StepTimer const& timer)
 	//リザルト
 	if(m_isResult == true)Result(timer);
 
-	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::O))
-	{
-		CameraShake(timer, 10.0f, 3.0f);
-	}
 
-	DoShake(timer, 10.0f, 3.0f);
 }
 
 ///////////////////////////
@@ -365,7 +367,7 @@ void PlayScene::Reset()
 	m_time = PlayScene::TIME_MAX;
 
 	//カメラの注視点の初期化
-	m_targetPos = DirectX::SimpleMath::Vector3::Zero;
+	SetTargetPos(DirectX::SimpleMath::Vector3::Zero);
 	SetCameraPos(DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f));
 
 	//UIクラスのリセット
@@ -402,10 +404,10 @@ void PlayScene::Result(DX::StepTimer const& timer)
 				3.0f
 			));
 			//注視点を変える
-			m_targetPos = DirectX::SimpleMath::Vector3(
+			SetTargetPos(DirectX::SimpleMath::Vector3(
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().x,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().y,
-				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().z);
+				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->GetPos().z));
 
 		}
 		//プレイヤー２勝利
@@ -424,10 +426,10 @@ void PlayScene::Result(DX::StepTimer const& timer)
 				3.0f
 			));
 			//注視点を変える
-			m_targetPos = DirectX::SimpleMath::Vector3(
+			SetTargetPos(DirectX::SimpleMath::Vector3(
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().x,
 				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().y,
-				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().z);
+				m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->GetPos().z));
 
 		}
 	}

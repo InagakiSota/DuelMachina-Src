@@ -17,6 +17,9 @@ SceneBase::SceneBase()
 	m_view{},
 	m_proj{},
 	m_cameraPos{},
+	m_cameraPosBuf{},
+	m_targetPos{},
+	m_targetPosBuf{},
 	m_isShake(false)
 {
 }
@@ -50,7 +53,7 @@ void SceneBase::Initialize()
 
 	//ビュー行列を作成
 	m_cameraPos = DirectX::SimpleMath::Vector3(0.0f, 0.0f, 6.0f);
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, DirectX::SimpleMath::Vector3(0.0f, 0.0f, 0.0f), DirectX::SimpleMath::Vector3::UnitY);
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
 
 	//画面サイズを取得する
 	RECT outputSize = m_pDeviceResources->GetOutputSize();
@@ -72,6 +75,8 @@ void SceneBase::Update(DX::StepTimer const& timer)
 	//キーボードの状態の取得
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
 	m_pKeyTracker->Update(keyState);
+
+	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
 
 }
 
@@ -102,11 +107,16 @@ void SceneBase::Finalize()
 //////////////////////////
 void SceneBase::CameraShake(DX::StepTimer const& timer, float duration, float magnitude)
 {
+
+
 	if (m_isShake == false)
 	{
-		m_isShake = true;
 		//カメラの振動を実行
 		//DoShake(timer, duration, magnitude);
+		m_isShake = true;
+
+		m_cameraPosBuf = m_cameraPos;
+		m_targetPosBuf = m_targetPos;
 	}
 }
 
@@ -117,29 +127,46 @@ void SceneBase::CameraShake(DX::StepTimer const& timer, float duration, float ma
 //////////////////////////
 void SceneBase::DoShake(DX::StepTimer const& timer, float duration, float magnitude)
 {
+	//初期座標を取得
+	DirectX::SimpleMath::Vector3 pos = m_cameraPos;
+	DirectX::SimpleMath::Vector3 targetPos = m_targetPos;
+
 	if (m_isShake == true)
 	{
-		//初期座標を取得
-		DirectX::SimpleMath::Vector3 pos = m_cameraPos;
 		//経過時間
-		float elapsed = 0.0f;
+		static float elapsed = 0.0f;
 		//終了時間になるまで繰り返す
-		while (elapsed < duration)
+
+		//XとY方向にランダムに移動させる
+		float x = m_cameraPos.x + ((rand() % 3) - 1.0f) * magnitude;
+		float y = m_cameraPos.y + ((rand() % 3) - 1.0f) * magnitude;
+		
+		//カメラ座標をずらす
+		m_cameraPos = DirectX::SimpleMath::Vector3(x, y, m_cameraPosBuf.z);
+		////カメラの注視点をずらす
+		m_targetPos = DirectX::SimpleMath::Vector3(x, y, m_targetPosBuf.z);
+		//m_targetPos = DirectX::SimpleMath::Vector3(targetPos.x + 0.1, targetPos.y, targetPos.z);
+		//ビュー行列を作成
+		m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
+
+		//m_cameraPos = m_cameraPosBuf;
+		//m_targetPos = m_targetPosBuf;
+
+		//m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
+
+
+		//経過時間を加算する
+		elapsed += timer.GetElapsedSeconds();
+
+		if (elapsed > 0.5f)
 		{
-			//XとY方向にランダムに移動させる
-			float x = pos.x + ((rand() % 3) - 1.0f) * magnitude;
-			float y = pos.y + ((rand() % 3) - 1.0f) * magnitude;
-
-			m_cameraPos = DirectX::SimpleMath::Vector3(x, y, pos.z);
-			//経過時間を加算する
-			elapsed += timer.GetElapsedSeconds();
-
-			// yield return null;
+			//初期座標に戻す
+			m_cameraPos = m_cameraPosBuf;
+			m_targetPos = m_targetPosBuf;
+			//カメラの振動フラグを消す
+			m_isShake = false;
+			elapsed = 0.0f;
 		}
-		//初期座標に戻す
-		m_cameraPos = pos;
-		//カメラの振動フラグを消す
-		//m_isShake = false;
 	}
 }
 

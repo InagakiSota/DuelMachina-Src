@@ -59,6 +59,11 @@ public:
 	virtual DirectX::SimpleMath::Vector3 GetCameraPos() = 0;
 	//カメラの座標の設定
 	virtual void SetCameraPos(const DirectX::SimpleMath::Vector3& cameraPos) = 0;
+	//カメラの注視点の取得
+	virtual DirectX::SimpleMath::Vector3 GetTargetPos() const = 0;
+	//カメラの注視点の設定
+	virtual void SetTargetPos(const DirectX::SimpleMath::Vector3& targetPos) = 0;
+
 	//音のIDの取得
 	virtual int GetSoundID() = 0;
 	//音のIDの設定

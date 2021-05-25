@@ -254,8 +254,6 @@ private:
 	//デバッグカメラ
 	std::unique_ptr<DebugCamera> m_pDebugCamera;
 
-	//カメラの注視点
-	DirectX::SimpleMath::Vector3 m_targetPos;
 
 	//足元の影のエフェクト
 	std::unique_ptr<ShadowManager> m_pShadowManager[PLAYER_NUM];

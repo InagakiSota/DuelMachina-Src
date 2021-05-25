@@ -113,6 +113,17 @@ public:
 	{
 		m_cameraPos = cameraPos;
 	}
+	//カメラの注視点の取得
+	DirectX::SimpleMath::Vector3 GetTargetPos() const override
+	{
+		return m_targetPos;
+	}
+	//カメラの注視点の設定
+	void SetTargetPos(const DirectX::SimpleMath::Vector3& targetPos) override
+	{
+		m_targetPos = targetPos;
+	}
+
 	//音のIDの取得
 	int GetSoundID() override
 	{
@@ -143,6 +154,14 @@ private:
 	DirectX::SimpleMath::Matrix m_proj;
 	//カメラの座標
 	DirectX::SimpleMath::Vector3 m_cameraPos;
+	//カメラの座標のバッファ
+	DirectX::SimpleMath::Vector3 m_cameraPosBuf;
+	//カメラの注視点
+	DirectX::SimpleMath::Vector3 m_targetPos;
+	//カメラの注視点のバッファ
+	DirectX::SimpleMath::Vector3 m_targetPosBuf;
+
+
 	//音のID
 	int m_soundID;
 	//カメラ振動のフラグ

@@ -563,7 +563,7 @@ void CharacterBase::HitAttack()
 				//攻撃力が5より大きければヒットストップ
 				if (m_pAttackManager->GetAttackStruct(i)->power > 5)
 				{
-					Sleep(100);
+					Sleep(150);
 				}
 			}
 

@@ -64,7 +64,7 @@ void ResultScene::Update(DX::StepTimer const & timer)
 	SceneBase::Update(timer);
 
 	//ビュー行列の更新
-	SetView( DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), DirectX::SimpleMath::Vector3::Zero, DirectX::SimpleMath::Vector3::UnitY));
+	SetView( DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), GetTargetPos(), DirectX::SimpleMath::Vector3::UnitY));
 	//m_view = m_pDebugCamera->getViewMatrix();
 
 	float time = float(timer.GetTotalSeconds());
