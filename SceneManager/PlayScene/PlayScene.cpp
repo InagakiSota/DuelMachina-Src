@@ -13,7 +13,6 @@
 #include "../../FrameWork/Sprite2D/Sprite2D.h"
 #include "../../FrameWork/DebugFont/DebugFont.h"
 #include "../../FrameWork/ModelObject/ModelObject.h"
-#include "../../Fbx.h"
 #include "../../FrameWork/DebugCamera/DebugCamera.h"
 #include "Character\CharacterFactory.h"
 #include "Character\CharacterBase.h"

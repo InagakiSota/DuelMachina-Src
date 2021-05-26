@@ -8,7 +8,7 @@
 
 #include "AttackType.h"
 #include <SimpleMath.h>
-#include "../../DeviceResources.h"
+#include "DeviceResources.h"
 #include "ICharacterAttackManager.h"
 
 class CharacterBase;

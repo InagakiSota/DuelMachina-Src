@@ -8,8 +8,8 @@
 
 class SceneBase;
 
-#include "../../DeviceResources.h"
-#include "../../StepTimer.h"
+#include "DeviceResources.h"
+#include "StepTimer.h"
 #include <CommonStates.h>
 
 //ŠeƒV[ƒ“‚ÌID

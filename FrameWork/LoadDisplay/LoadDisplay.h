@@ -6,7 +6,7 @@
 
 #pragma once
 
-#include "../../../DeviceResources.h"
+#include "DeviceResources.h"
 #include "StepTimer.h"
 #include <SimpleMath.h>
 #include <CommonStates.h>
