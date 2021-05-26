@@ -114,7 +114,7 @@ void PlayScene::Initialize()
 
 	//床の作成
 	m_floorBox.pos = DirectX::SimpleMath::Vector3(0.0f, -2.0f, 0.0f);
-	m_floorBox.size_h = DirectX::SimpleMath::Vector3(5.0f, 0.25f, 1.0f);
+	m_floorBox.size_h = DirectX::SimpleMath::Vector3(6.0f, 0.25f, 2.0f);
 	m_pFloor = DirectX::GeometricPrimitive::CreateBox(gdi->GetDeviceResources()->GetD3DDeviceContext(), m_floorBox.size_h*2);
 	m_floorWorld = DirectX::SimpleMath::Matrix::CreateTranslation(m_floorBox.pos);
 
@@ -189,17 +189,13 @@ void PlayScene::Update(DX::StepTimer const& timer)
 		CameraShake(timer, 10.0f, 0.1f);
 	}
 
-	DoShake(timer, 10.0f, 0.1f);
+	DoShake(timer, 10.0f, 0.5f);
 
 	//基底クラスの更新関数
 	SceneBase::Update(timer);
 
 	//経過時間を加算する
 	m_totalSeconds = static_cast<float>(timer.GetTotalSeconds());
-
-	//ビュー行列を設定
-	SetView(DirectX::SimpleMath::Matrix::CreateLookAt(GetCameraPos(), 
-			GetTargetPos(), DirectX::SimpleMath::Vector3::UnitY));
 
 
 	for (int i = 0; i < PLAYER_NUM; i++)
