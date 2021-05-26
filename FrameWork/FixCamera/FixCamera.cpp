@@ -39,7 +39,7 @@ void FixCamera::Initialize()
 void FixCamera::Update()
 {
 
-	m_viewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(m_eye, m_target, m_up);
+	//m_viewMatrix = DirectX::SimpleMath::Matrix::CreateLookAt(m_eye, m_target, m_up);
 
 }
 

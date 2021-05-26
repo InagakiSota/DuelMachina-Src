@@ -183,12 +183,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 {
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
 
-	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::O))
-	{
-		CameraShake(timer, 10.0f, 0.1f);
-	}
-
-	DoShake(timer, 10.0f, 0.5f);
 
 	//基底クラスの更新関数
 	SceneBase::Update(timer);
@@ -231,6 +225,13 @@ void PlayScene::Update(DX::StepTimer const& timer)
 	m_pPlaySceneMenu->Update();
 	//リザルト
 	if(m_isResult == true)Result(timer);
+
+	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::O))
+	{
+		CameraShake(timer, 10.0f, 0.1f);
+	}
+
+
 
 
 }

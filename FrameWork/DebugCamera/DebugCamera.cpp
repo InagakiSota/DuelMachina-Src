@@ -73,7 +73,7 @@ void DebugCamera::update()
 	m_eye = eye;
 	m_target = target;
 
-	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, target, up);
+	//m_view = DirectX::SimpleMath::Matrix::CreateLookAt(eye, target, up);
 }
 
 // 行列の生成

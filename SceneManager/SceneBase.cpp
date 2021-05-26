@@ -78,7 +78,7 @@ void SceneBase::Update(DX::StepTimer const& timer)
 
 	//if(m_isShake == false)
 	//	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
-
+	DoShake(timer, 10.0f, 0.1f);
 }
 
 ///////////////////////////
@@ -135,12 +135,12 @@ void SceneBase::DoShake(DX::StepTimer const& timer, float duration, float magnit
 	if (m_isShake == true)
 	{
 		//経過時間
-		static float elapsed = 0.0f;
+		//static float elapsed = 0.0f;
 		//終了時間になるまで繰り返す
 
 		//XとY方向にランダムに移動させる
-		float x = m_cameraPos.x + ((rand() % 3) - 1.0f) * magnitude;
-		float y = m_cameraPos.y + ((rand() % 3) - 1.0f) * magnitude;
+		float x = ((rand() % 3) - 1.0f) * magnitude;
+		float y = ((rand() % 3) - 1.0f) * magnitude;
 		
 		//カメラ座標をずらす
 		DirectX::SimpleMath::Vector3 pos = DirectX::SimpleMath::Vector3(x, y, 0.0f);
@@ -153,31 +153,24 @@ void SceneBase::DoShake(DX::StepTimer const& timer, float duration, float magnit
 			m_targetPos + targetPos, 
 			DirectX::SimpleMath::Vector3::UnitY);
 
-		//m_cameraPos = m_cameraPosBuf;
-		//m_targetPos = m_targetPosBuf;
-
-		//m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
-
 		
 		//経過時間を加算する
-		elapsed += static_cast<float>(timer.GetElapsedSeconds());
+		//elapsed += static_cast<float>(timer.GetElapsedSeconds());
 
-		if (elapsed > duration)
-		{
-			//初期座標に戻す
-			//m_cameraPos = m_cameraPosBuf;
-			//m_targetPos = m_targetPosBuf;
-			m_view = DirectX::SimpleMath::Matrix::CreateLookAt(
-				m_cameraPos,
-				m_targetPos,
-				DirectX::SimpleMath::Vector3::UnitY);
+		//if (elapsed > duration)
+		//{
+		//	//初期座標に戻す
+		//	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(
+		//		m_cameraPos,
+		//		m_targetPos,
+		//		DirectX::SimpleMath::Vector3::UnitY);
 
 
-		 
-			//カメラの振動フラグを消す
-			m_isShake = false;
-			elapsed = 0.0f;
-		}
+		// 
+		//	//カメラの振動フラグを消す
+		//	m_isShake = false;
+		//	elapsed = 0.0f;
+		//}
 	}
 }
 
