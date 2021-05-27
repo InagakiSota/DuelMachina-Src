@@ -125,8 +125,12 @@ void PlayScene::Initialize()
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetStartPos(DirectX::SimpleMath::Vector3(-2.0f, 1.0f, 0.0f));
 	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetStartPos(DirectX::SimpleMath::Vector3(2.0f, 1.0f, 0.0f));
 
+	//プレイヤーにプレイシーンのポインタを渡す
+	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_1)]->SetPlayScene(this);
+	m_pPlayer[static_cast<int>(ePLAYER_ID::PLAYER_2)]->SetPlayScene(this);
+
 	//UIクラスの読み込み
-	m_pPlaySceneUI = std::make_unique < PlaySceneUI>();
+	m_pPlaySceneUI = std::make_unique <PlaySceneUI>();
 	//プレイシーンのポインタを渡す
 	m_pPlaySceneUI->SetPlayScene(this);
 	//UIクラスの初期化
@@ -183,7 +187,6 @@ void PlayScene::Update(DX::StepTimer const& timer)
 {
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
 
-
 	//基底クラスの更新関数
 	SceneBase::Update(timer);
 
@@ -222,16 +225,9 @@ void PlayScene::Update(DX::StepTimer const& timer)
 
 
 	//メニュークラスの更新
-	m_pPlaySceneMenu->Update();
+	if(m_pPlaySceneMenu != nullptr) m_pPlaySceneMenu->Update();
 	//リザルト
 	if(m_isResult == true)Result(timer);
-
-	if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::O))
-	{
-		CameraShake(timer, 10.0f, 0.1f);
-	}
-
-
 
 
 }

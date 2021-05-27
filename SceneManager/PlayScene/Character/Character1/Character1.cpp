@@ -188,6 +188,7 @@ void Character1::Finalize()
 {
 	//Šî’êƒNƒ‰ƒX‚ÌI—¹ˆ—
 	CharacterBase::Finalize();
+
 }
 
 ///////////////////////////

@@ -50,6 +50,9 @@ TitleScene::~TitleScene()
 	m_pLogoSprite.reset();
 	m_pSpaceSprite.reset();
 
+	m_pSkyBox.reset();
+
+
 }
 
 
@@ -140,7 +143,9 @@ void TitleScene::Update(DX::StepTimer const& timer)
 			//ESC“ü—Í‚ÅƒQ[ƒ€‚ðI—¹‚·‚é
 			if (GetKeyTracker()->IsKeyPressed(DirectX::Keyboard::Keys::Escape))
 			{
+
 				PostQuitMessage(0);
+
 			}
 
 			break;

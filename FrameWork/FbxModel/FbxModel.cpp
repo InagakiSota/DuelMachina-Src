@@ -59,8 +59,8 @@ FbxModel::~FbxModel()
 	}
 	if (m_pConstantBuffer != nullptr)
 	{
-		//delete m_pConstantBuffer;
 		m_pConstantBuffer->Release();
+		delete m_pConstantBuffer;
 		m_pConstantBuffer = nullptr;
 	}
 	if (m_pVerBuffer != nullptr)
@@ -71,8 +71,9 @@ FbxModel::~FbxModel()
 	}
 	if (m_pIndBuffer != nullptr)
 	{
-		//delete m_pIndBuffer;
+		//
 		m_pIndBuffer->Release();
+		delete m_pIndBuffer;
 		m_pIndBuffer = nullptr;
 	}
 	if (m_pFbxManager != nullptr)

@@ -19,6 +19,7 @@ enum class eCHARACTER_ID;
 struct AttackStruct;
 class FbxModel;
 class BoostEffectManager;
+class SceneBase;
 
 class ICharacrter
 {
@@ -59,6 +60,8 @@ public:
 	////////////////////////////////
 	//ゲッター、セッター
 	////////////////////////////////
+	//プレイシーンのポインタの取得
+	virtual void SetPlayScene(SceneBase* pPlayScene) = 0;
 	//3Dモデルのポインタの取得
 	virtual FbxModel* GetFbxModel() = 0;
 	//3Dモデルのポインタの設定

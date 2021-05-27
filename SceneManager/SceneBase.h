@@ -43,9 +43,9 @@ public:
 	void Finalize() override;
 
 	//カメラの振動
-	void CameraShake(DX::StepTimer const& timer, float duration, float magnitude) override;
+	void CameraShake(float duration, float magnitude) override;
 	//カメラの振動を実行
-	void DoShake(DX::StepTimer const& timer, float duration, float magnitude);
+	void DoShake(DX::StepTimer const& timer);
 
 	//デバイスリソースの取得
 	DX::DeviceResources* GetDeviceResources() override
@@ -154,18 +154,19 @@ private:
 	DirectX::SimpleMath::Matrix m_proj;
 	//カメラの座標
 	DirectX::SimpleMath::Vector3 m_cameraPos;
-	//カメラの座標のバッファ
-	DirectX::SimpleMath::Vector3 m_cameraPosBuf;
 	//カメラの注視点
 	DirectX::SimpleMath::Vector3 m_targetPos;
-	//カメラの注視点のバッファ
-	DirectX::SimpleMath::Vector3 m_targetPosBuf;
 
 
 	//音のID
 	int m_soundID;
 	//カメラ振動のフラグ
 	bool m_isShake;
+	
+	//カメラ振動の時間
+	float m_shakeDuration;
+	//カメラ振動の強さ
+	float m_shakeMagnitude;
 
 
 };

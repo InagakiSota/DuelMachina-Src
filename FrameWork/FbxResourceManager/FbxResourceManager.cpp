@@ -178,13 +178,5 @@ FbxResourceManager::FbxResourceManager()
 //デストラクタ
 FbxResourceManager::~FbxResourceManager()
 {
-	delete m_pCharacter1Model;
-	m_pCharacter1Model = nullptr;
-
-	delete m_pCharacter2Model;
-	m_pCharacter2Model = nullptr;
-
-	delete m_pCharacter3Model;
-	m_pCharacter3Model = nullptr;
-
+	FbxResourceManager::Finalize();
 }

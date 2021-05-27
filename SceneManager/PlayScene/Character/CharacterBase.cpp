@@ -28,6 +28,7 @@ const float CharacterBase::MOVE_LIMIT_X = 3.0f;
 CharacterBase::CharacterBase(ePLAYER_ID playerID)
 	: m_jumpFlag(false),
 	m_landingFlag(false),
+	m_landingFlagBuf(false),
 	m_legBoxWorld(DirectX::SimpleMath::Matrix::Identity),
 	m_legCollBox{},
 	m_pLegBox(nullptr),
@@ -64,7 +65,8 @@ CharacterBase::CharacterBase(ePLAYER_ID playerID)
 	m_isAttacking(false),
 	m_pHitEffectManager(nullptr),
 	m_pEnemy(nullptr),
-	m_characterID(eCHARACTER_ID::NONE)
+	m_characterID(eCHARACTER_ID::NONE),
+	m_pPlayScene(nullptr)
 {
 }
 
@@ -92,10 +94,12 @@ CharacterBase::~CharacterBase()
 	//	m_pKeyTracker.reset();
 	//}
 
-	//if (m_pFbxModel != nullptr)
-	//{
-	//	m_pFbxModel = nullptr;
-	//}
+	if (m_pFbxModel != nullptr)
+	{
+		m_pFbxModel = nullptr;
+	}
+
+	if (m_pPlayScene != nullptr)m_pPlayScene = nullptr;
 }
 
 //////////////////////////
@@ -458,11 +462,23 @@ void CharacterBase::HitFloor(const Collision::BoxCollision& floorColl)
 		{
 			m_charaState = eCHARACTER_STATE::WAIT;
 		}
+		
+		//着地したらカメラを振動させる
+		if (m_pPlayScene != nullptr)
+		{
+			if(m_landingFlag == true && m_landingFlagBuf == false)
+				m_pPlayScene->CameraShake(0.5f, 0.1f);
+		}
 
+		//着地フラグのバッファの同期
+		m_landingFlagBuf = m_landingFlag;
 	}
 	else
 	{
 		m_landingFlag = false;
+		//着地フラグのバッファの同期
+		m_landingFlagBuf = m_landingFlag;
+
 	}
 
 }
@@ -554,7 +570,7 @@ void CharacterBase::HitAttack()
 				m_pAttackManager->GetAttackStruct(i)->isHit = true;
 
 				//ヒットエフェクトの再生
-				m_pHitEffectManager->Play(20.0f, m_pos);
+				m_pHitEffectManager->Play(40.0f, m_pos);
 
 				//ヒット音の再生
 				static int id;

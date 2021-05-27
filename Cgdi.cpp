@@ -16,6 +16,10 @@ Cgdi::Cgdi()
 //デストラクタ
 Cgdi::~Cgdi()
 {
+	m_deviceResources = nullptr;
+	m_states = nullptr;
+
+	m_spriteBatch.reset();
 }
 
 ///////////////////////////

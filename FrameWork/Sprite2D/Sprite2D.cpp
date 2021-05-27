@@ -26,6 +26,8 @@ Sprite2D::~Sprite2D()
 		m_spriteBatch = nullptr;
 	}
 	m_pStates = nullptr;
+
+	m_texture.Reset();
 }
 
 //ê∂ê¨

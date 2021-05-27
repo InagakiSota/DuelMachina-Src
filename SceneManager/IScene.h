@@ -28,7 +28,7 @@ public:
 	virtual void Finalize() = 0;
 
 	//カメラの振動
-	virtual void CameraShake(DX::StepTimer const& timer, float duration, float magnitude) = 0;
+	virtual void CameraShake(float duration, float magnitude) = 0;
 
 	///////////////////////////////
 	//ゲッター、セッター

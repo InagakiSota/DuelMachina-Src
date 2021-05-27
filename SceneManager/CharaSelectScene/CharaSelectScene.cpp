@@ -6,7 +6,6 @@
 
 #include "pch.h"
 #include "CharaSelectScene.h"
-#include "Src\FrameWork\DebugFont\DebugFont.h"
 #include "Src\SceneManager\SceneManager.h"
 #include "Keyboard.h"
 
@@ -422,8 +421,6 @@ void CharaSelectScene::Render()
 //////////////////////////
 void CharaSelectScene::Finalize()
 {
-	DebugFont::Dispose();
-
 	m_pSelectSprite->Reset();
 
 
@@ -438,6 +435,11 @@ void CharaSelectScene::Finalize()
 
 
 	ADX2::GetInstance().Stop(GetSoundID());
+
+	//キャラクターのモデルのポインタ解放
+	m_pCharacter1Model = nullptr;
+	m_pCharacter2Model = nullptr;
+	m_pCharacter3Model = nullptr;
 
 }
 

@@ -17,6 +17,7 @@
 #include "BoostEffectManager.h"
 #include "../../../FrameWork/ModelObject/ModelObject.h"
 #include "ICharacter.h"
+#include  "../../SceneBase.h"
 
 //前方宣言
 enum class ePLAYER_ID;
@@ -73,6 +74,12 @@ public:
 	////////////////////////////////
 	//ゲッター、セッター
 	////////////////////////////////
+	//プレイシーンのポインタの取得
+	void SetPlayScene(SceneBase* pPlayScene) override
+	{
+		m_pPlayScene = pPlayScene;
+	}
+
 	//3Dモデルのポインタの取得
 	FbxModel* GetFbxModel() override
 	{
@@ -491,7 +498,9 @@ private:
 	//シールドのモデルのワールド行列
 	DirectX::SimpleMath::Matrix m_shieldWorld;
 	//着地フラグ
-	bool m_landingFlag;											
+	bool m_landingFlag;		
+	//着地フラグのバッファ
+	bool m_landingFlagBuf;
 	//ジャンプフラグ
 	bool m_jumpFlag;					
 	//プレイヤーのID(プレイヤー１か２か)
@@ -528,7 +537,8 @@ private:
 
 	//キャラのステート変数
 	eCHARACTER_STATE m_charaState;
-
+	//プレイシーンのポインタ
+	SceneBase* m_pPlayScene;
 	//ステートマネージャーのポインタ
 	std::unique_ptr<CharacterStateManagerBase> m_pStateManager;
 	//攻撃マネージャーのポインタ

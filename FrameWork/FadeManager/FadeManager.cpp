@@ -74,9 +74,11 @@ void FadeManager::Create(DX::DeviceResources * deviceResources)
 
 	//m_model = Model::CreateFromCMO(device, L"Resources/cup.cmo", *m_fxFactory);
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 1; i++) 
+	{
 		MyEffect* effect = new MyEffect();
 		m_effectList.push_back(effect);
+		//delete effect;
 	}
 }
 
@@ -153,6 +155,7 @@ void FadeManager::Finalize()
 	{
 		delete (*itr);
 	}
+	m_effectList.clear();
 }
 
 ///////////////////////////
@@ -170,7 +173,7 @@ void FadeManager::Draw(DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::M
 	cbuff.matProj = proj.Transpose();
 	cbuff.matWorld = world.Transpose();
 	//Time		x:経過時間(トータル秒)	y:1Fの経過時間(秒）	z:反復（サインカーブ） w:未使用（暫定で１）
-	cbuff.Time = DirectX::SimpleMath::Vector4(m_timer.GetTotalSeconds(), m_timer.GetElapsedSeconds(), sinf(m_timer.GetTotalSeconds()), m_time);
+	cbuff.Time = DirectX::SimpleMath::Vector4(static_cast<float>( m_timer.GetTotalSeconds()),static_cast<float>(m_timer.GetElapsedSeconds()), sinf(static_cast<float>(m_timer.GetTotalSeconds())), m_time);
 
 	DirectX::Mouse::State ms = DirectX::Mouse::Get().GetState();
 
@@ -215,6 +218,8 @@ void FadeManager::Draw(DirectX::SimpleMath::Matrix world, DirectX::SimpleMath::M
 	context->VSSetShader(nullptr, nullptr, 0);
 	context->GSSetShader(nullptr, nullptr, 0);
 	context->PSSetShader(nullptr, nullptr, 0);
+
+
 }
 
 ///////////////////////////
@@ -242,8 +247,9 @@ void FadeManager::ReleaseInstance()
 	if (m_pMyInstance != nullptr)
 	{
 		delete m_pMyInstance;
-		m_pMyInstance = nullptr;
 	}
+	m_pMyInstance = nullptr;
+
 }
 
 //コンストラクタ
@@ -256,4 +262,8 @@ FadeManager::FadeManager()
 //デストラクタ
 FadeManager::~FadeManager()
 {
+	m_VertexShader.Reset();
+	m_GeometryShader.Reset();
+	m_PixelShader.ReleaseAndGetAddressOf();
+	m_PixelShader.Reset();
 }

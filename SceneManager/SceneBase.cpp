@@ -6,6 +6,7 @@
 #include "pch.h"
 #include "SceneBase.h"
 #include "Src/Cgdi.h"
+#include <random>
 
 //コンストラクタ
 SceneBase::SceneBase()
@@ -17,10 +18,11 @@ SceneBase::SceneBase()
 	m_view{},
 	m_proj{},
 	m_cameraPos{},
-	m_cameraPosBuf{},
 	m_targetPos{},
-	m_targetPosBuf{},
-	m_isShake(false)
+	m_isShake(false),
+	m_soundID(0),
+	m_shakeDuration(0.0f),
+	m_shakeMagnitude(0.0f)
 {
 }
 
@@ -76,9 +78,10 @@ void SceneBase::Update(DX::StepTimer const& timer)
 	DirectX::Keyboard::State keyState = DirectX::Keyboard::Get().GetState();
 	m_pKeyTracker->Update(keyState);
 
+
 	//if(m_isShake == false)
 	//	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(m_cameraPos, m_targetPos, DirectX::SimpleMath::Vector3::UnitY);
-	DoShake(timer, 10.0f, 0.1f);
+	DoShake(timer);
 }
 
 ///////////////////////////
@@ -106,41 +109,43 @@ void SceneBase::Finalize()
 //引数:ステップタイマー、振動する時間、振動する強さ
 //戻り値:なし
 //////////////////////////
-void SceneBase::CameraShake(DX::StepTimer const& timer, float duration, float magnitude)
+void SceneBase::CameraShake(float duration, float magnitude)
 {
-
-
 	if (m_isShake == false)
 	{
 		//カメラの振動を実行
 		//DoShake(timer, duration, magnitude);
 		m_isShake = true;
 
-		m_cameraPosBuf = m_cameraPos;
-		m_targetPosBuf = m_targetPos;
+		//振動する時間の設定
+		m_shakeDuration = duration;
+		//振動する強さの設定
+		m_shakeMagnitude = magnitude;
 	}
 }
 
 ///////////////////////////
 //カメラの振動を実行
-//引数:ステップタイマー、振動する時間、振動する強さ
+//引数:ス
 //戻り値:
 //////////////////////////
-void SceneBase::DoShake(DX::StepTimer const& timer, float duration, float magnitude)
+void SceneBase::DoShake(DX::StepTimer const& timer)
 {
 	////初期座標を取得
 	//DirectX::SimpleMath::Vector3 pos = m_cameraPos;
 	//DirectX::SimpleMath::Vector3 targetPos = m_targetPos;
-
+	
 	if (m_isShake == true)
 	{
 		//経過時間
-		//static float elapsed = 0.0f;
+		static float elapsed = 0.0f;
 		//終了時間になるまで繰り返す
 
 		//XとY方向にランダムに移動させる
-		float x = ((rand() % 3) - 1.0f) * magnitude;
-		float y = ((rand() % 3) - 1.0f) * magnitude;
+		std::random_device rnd;
+		
+		float x = ((rnd() % 3) - 1.0f) * m_shakeMagnitude;
+		float y = ((rnd() % 3) - 1.0f) * m_shakeMagnitude;
 		
 		//カメラ座標をずらす
 		DirectX::SimpleMath::Vector3 pos = DirectX::SimpleMath::Vector3(x, y, 0.0f);
@@ -155,22 +160,23 @@ void SceneBase::DoShake(DX::StepTimer const& timer, float duration, float magnit
 
 		
 		//経過時間を加算する
-		//elapsed += static_cast<float>(timer.GetElapsedSeconds());
+		elapsed += static_cast<float>(timer.GetElapsedSeconds());
 
-		//if (elapsed > duration)
-		//{
-		//	//初期座標に戻す
-		//	m_view = DirectX::SimpleMath::Matrix::CreateLookAt(
-		//		m_cameraPos,
-		//		m_targetPos,
-		//		DirectX::SimpleMath::Vector3::UnitY);
+		if (elapsed > m_shakeDuration)
+		{
+			//初期座標に戻す
+			m_view = DirectX::SimpleMath::Matrix::CreateLookAt(
+				m_cameraPos,
+				m_targetPos,
+				DirectX::SimpleMath::Vector3::UnitY);
+		 
+			//カメラの振動フラグを消す
+			m_isShake = false;
+			elapsed = 0.0f;
 
-
-		// 
-		//	//カメラの振動フラグを消す
-		//	m_isShake = false;
-		//	elapsed = 0.0f;
-		//}
+			m_shakeDuration = 0.0f;
+			m_shakeMagnitude = 0.0f;
+		}
 	}
 }
 
