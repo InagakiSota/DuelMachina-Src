@@ -62,7 +62,8 @@ void HitEffectManager::Create(DX::DeviceResources * deviceResources,const int& c
 
 
 	//エフェクトを実体化し、リストに登録する。
-	for (int i = 0; i < count; i++) {
+	for (int i = 0; i < count; i++) 
+	{
 		std::unique_ptr<HitEffect> effect = std::make_unique<HitEffect>();
 		effect->Create(deviceResources, m_texture.Get(), m_inputLayout.Get());
 		m_hitEffectList.push_back(std::move(effect));
@@ -131,7 +132,7 @@ void HitEffectManager::InitializeAverage(float life, DirectX::SimpleMath::Vector
 	{
 		float size = (float)m_hitEffectList.size();
 		DirectX::SimpleMath::Vector3 vel =
-			DirectX::SimpleMath::Vector3(cos(RAD * num / size + DirectX::XM_PI / 2.0f), sin(RAD * num / size + DirectX::XM_PI / 2.0f), 0);
+			DirectX::SimpleMath::Vector3(cosf(RAD * num / size + DirectX::XM_PI / 2.0f), sinf(RAD * num / size + DirectX::XM_PI / 2.0f), 0);
 		vel *= 0.1f;
 		(*ite)->Initialize(life, pos, vel);
 		num++;
