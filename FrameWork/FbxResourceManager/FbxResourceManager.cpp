@@ -165,6 +165,9 @@ void FbxResourceManager::Finalize()
 
 	delete m_pCharacter3Model;
 	m_pCharacter3Model = nullptr;
+
+	delete m_pShieldModel;
+	m_pShieldModel = nullptr;
 }
 
 //コンストラクタ

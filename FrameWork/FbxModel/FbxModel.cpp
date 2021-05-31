@@ -60,7 +60,7 @@ FbxModel::~FbxModel()
 	if (m_pConstantBuffer != nullptr)
 	{
 		m_pConstantBuffer->Release();
-		delete m_pConstantBuffer;
+		//delete m_pConstantBuffer;
 		m_pConstantBuffer = nullptr;
 	}
 	if (m_pVerBuffer != nullptr)
@@ -73,7 +73,7 @@ FbxModel::~FbxModel()
 	{
 		//
 		m_pIndBuffer->Release();
-		delete m_pIndBuffer;
+		//delete m_pIndBuffer;
 		m_pIndBuffer = nullptr;
 	}
 	if (m_pFbxManager != nullptr)
