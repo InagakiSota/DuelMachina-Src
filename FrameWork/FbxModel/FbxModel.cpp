@@ -660,10 +660,6 @@ bool FbxModel::DrawAnimation(FbxNode * pNode, DirectX::SimpleMath::Matrix world,
 		memcpy_s(pData.pData, pData.RowPitch, (void*)(vertices), sizeof(Vertex)*controlPoinsCount);
 		m_pContext->Unmap(m_pVerBuffer, 0);
 
-		//m_pVerBuffer = m_pConstantBuffer;
-		//m_pContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-		//m_pContext->PSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-
 
 		//•`‰æŽÀs
 		int polygonVertexCount = mesh->GetPolygonVertexCount();
