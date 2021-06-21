@@ -38,11 +38,16 @@ private:
 	static const float GP_SIZE;
 	//弾道の数
 	static const int BALLISTIC_NUM = 10;
+
+	static const int ARRAY_NUM = 3;
+
 	//弾道のジオメトリプリミティブ
 	std::unique_ptr<DirectX::GeometricPrimitive> m_pBallisticGPArray[BALLISTIC_NUM];
 	//弾道の座標
 	DirectX::SimpleMath::Vector3 m_ballisticPos[BALLISTIC_NUM];
 	//弾道のワールド行列
 	DirectX::SimpleMath::Matrix m_ballisticWorld[BALLISTIC_NUM];
+
+	AttackStruct* m_pAttackArray[ARRAY_NUM];
 
 };
