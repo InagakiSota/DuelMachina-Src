@@ -54,4 +54,5 @@ private:
 	DirectX::SimpleMath::Vector3 m_ballisticPos[BALLISTIC_NUM];
 	//’e“¹‚Ìƒ[ƒ‹ƒhs—ñ
 	DirectX::SimpleMath::Matrix m_ballisticWorld[BALLISTIC_NUM];
+
 };

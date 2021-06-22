@@ -30,6 +30,8 @@ Character3AttackMiddleSide::Character3AttackMiddleSide()
 	for (int i = 0; i < ARRAY_NUM; i++)
 	{
 		m_pAttackArray[i] = nullptr;
+		m_worldArray[i] = DirectX::SimpleMath::Matrix::Identity;
+		m_pBulletGPArray[i] = nullptr;
 	}
 }
 
@@ -98,7 +100,8 @@ void Character3AttackMiddleSide::Update()
 			0.0f);
 
 		//弾のジオメトリプリミティブ生成
-		m_pBulletGP = DirectX::GeometricPrimitive::CreateSphere(m_pDeviceResources->GetD3DDeviceContext(), m_pAttackArray[0]->attackColl.size_h.x * Character3AttackMiddleSide::GP_SIZE);
+		m_pBulletGPArray[0] = DirectX::GeometricPrimitive::CreateSphere(m_pDeviceResources->GetD3DDeviceContext(),
+			m_pAttackArray[0]->attackColl.size_h.x * Character3AttackMiddleSide::GP_SIZE);
 
 		//弾道のジオメトリプリミティブの読み込み
 		for (int i = 0; i < BALLISTIC_NUM; i++)
@@ -147,7 +150,7 @@ void Character3AttackMiddleSide::Update()
 			//座標を設定
 			m_pAttackArray[0]->attackColl.pos = m_pAttackArray[0]->pos;
 			//座標から座標行列を生成
-			m_world = DirectX::SimpleMath::Matrix::CreateTranslation(m_pAttackArray[0]->attackColl.pos);
+			m_worldArray[0] = DirectX::SimpleMath::Matrix::CreateTranslation(m_pAttackArray[0]->attackColl.pos);
 
 			//弾道の座標を配列の前から後に更新(上書き)する
 			for (int i = BALLISTIC_NUM - 2; i >= 0; --i)
@@ -190,8 +193,8 @@ void Character3AttackMiddleSide::Update()
 			m_pAttackArray[0]->vel.Zero;
 			m_pAttackArray[0] = nullptr;
 			m_pCharacter->SetAttackFront(DirectX::SimpleMath::Vector3::Zero);
-			m_pBulletGP.reset();
-			m_world = DirectX::SimpleMath::Matrix::Identity;
+			m_pBulletGPArray[0].reset();
+			m_worldArray[0] = DirectX::SimpleMath::Matrix::Identity;
 
 		}
 
@@ -206,7 +209,7 @@ void Character3AttackMiddleSide::Update()
 //////////////////////////
 void Character3AttackMiddleSide::Render(DirectX::SimpleMath::Matrix view, DirectX::SimpleMath::Matrix proj)
 {
-	if (m_pBulletGP != nullptr)
+	if (m_pBulletGPArray[0] != nullptr)
 	{
 		//弾道を配列の後の方から描画する(透明度は後の方なるほど上がっていく)
 		for (int i = BALLISTIC_NUM - 1; i >= 0; i--)
@@ -217,10 +220,10 @@ void Character3AttackMiddleSide::Render(DirectX::SimpleMath::Matrix view, Direct
 		//使用するプレイヤーごとに色を変える
 		//プレイヤー１用(赤)
 		if (m_pCharacter->GetPlayerID() == ePLAYER_ID::PLAYER_1)
-			m_pBulletGP->Draw(m_world, view, proj, DirectX::Colors::Red);
+			m_pBulletGPArray[0]->Draw(m_worldArray[0], view, proj, DirectX::Colors::Red);
 		//プレイヤー２用(青)
 		else if (m_pCharacter->GetPlayerID() == ePLAYER_ID::PLAYER_2)
-			m_pBulletGP->Draw(m_world, view, proj, DirectX::Colors::Blue);
+			m_pBulletGPArray[0]->Draw(m_worldArray[0], view, proj, DirectX::Colors::Blue);
 	}
 }
 
@@ -231,9 +234,9 @@ void Character3AttackMiddleSide::Render(DirectX::SimpleMath::Matrix view, Direct
 //////////////////////////
 void Character3AttackMiddleSide::Finalize()
 {
-	if (m_pBulletGP != nullptr)
+	if (m_pBulletGPArray[0] != nullptr)
 	{
-		m_pBulletGP.reset();
+		m_pBulletGPArray[0].reset();
 	}
 	m_pDeviceResources = nullptr;
 }
@@ -245,9 +248,9 @@ void Character3AttackMiddleSide::Finalize()
 //////////////////////////
 void Character3AttackMiddleSide::Reset()
 {
-	if (m_pBulletGP != nullptr)
+	if (m_pBulletGPArray[0] != nullptr)
 	{
-		m_pBulletGP.reset();
+		m_pBulletGPArray[0].reset();
 	}
 
 	m_pCharacter->SetIsAttackUse(static_cast<int>(eATTACK_TYPE::MIDDLE_SIDE), false);

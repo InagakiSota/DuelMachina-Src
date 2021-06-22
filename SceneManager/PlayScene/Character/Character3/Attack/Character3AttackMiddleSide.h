@@ -48,6 +48,10 @@ private:
 	//弾道のワールド行列
 	DirectX::SimpleMath::Matrix m_ballisticWorld[BALLISTIC_NUM];
 
+	//攻撃の構造体配列
 	AttackStruct* m_pAttackArray[ARRAY_NUM];
-
+	//ジオメトリプリミティブの配列
+	std::unique_ptr<DirectX::GeometricPrimitive> m_pBulletGPArray[ARRAY_NUM];
+	//ワールド行列の配列
+	DirectX::SimpleMath::Matrix m_worldArray[ARRAY_NUM];
 };

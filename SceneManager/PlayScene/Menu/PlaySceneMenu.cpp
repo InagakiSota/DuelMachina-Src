@@ -174,7 +174,7 @@ void PlaySceneMenu::Update()
 	}
 
 	//操作説明の表示フラグが立ったら操作説明の更新
-	if (m_pPlayScene->GetIsManualDisplay() == true)m_pPlaySceneManual->Update();
+	if (m_pPlayScene->GetIsManualDisplay() == true && m_pPlaySceneManual != nullptr)m_pPlaySceneManual->Update();
 
 }
 
